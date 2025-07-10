@@ -3,9 +3,12 @@
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KaryawanController;
+use App\Http\Controllers\CustomerController;
 
 
+// Auth
 Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 
 // Karyawan
@@ -18,4 +21,11 @@ Route::put('/karyawan/{id}/reset-password', [KaryawanController::class, 'resetPa
 Route::get('/karyawan-filter', [KaryawanController::class, 'filter']);
 
 
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+//Customer
+Route::post('/customer', [CustomerController::class, 'store']);
+Route::get('/customer', [CustomerController::class, 'index']);
+Route::get('/customer/{id}', [CustomerController::class, 'show']);
+Route::put('/customer/{id}', [CustomerController::class, 'update']);
+Route::delete('/customer/{id}', [CustomerController::class, 'destroy']);
+
+
