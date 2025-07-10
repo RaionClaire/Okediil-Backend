@@ -112,4 +112,36 @@ class CustomerController extends Controller
             'message' => 'Customer berhasil dihapus',
         ], 200);
     }
+
+    public function filter(Request $request)
+    {
+        $query = Customer::query();
+
+        if ($request->has('nama')) {
+            $query->where('nama', 'like', '%' . $request->nama . '%');
+        }
+
+        if ($request->has('no_hp')) {
+            $query->where('no_hp', 'like', '%' . $request->no_hp . '%');
+        }
+
+        if ($request->has('jenis_kelamin')) {
+            $query->where('jenis_kelamin', $request->jenis_kelamin);
+        }
+
+        if ($request->has('status_pekerjaan')) {
+            $query->where('status_pekerjaan', $request->status_pekerjaan);
+        }
+
+        if ($request->has('sumber')) {
+            $query->where('sumber', $request->sumber);
+        }
+
+        $customers = $query->get();
+
+        return response()->json([
+            'message' => 'Hasil filter customer',
+            'data' => $customers
+        ], 200);
+    }
 }
