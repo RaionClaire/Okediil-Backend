@@ -38,4 +38,87 @@ class KaryawanController extends Controller
             'data'    => $karyawan
         ], 201);
     }
+
+    public function index(){
+        $karyawans = Karyawan::all();
+
+        return response()->json([ $karyawans ], 200);
+    }
+
+    public function show($id)
+    {
+        $karyawan = Karyawan::find($id);
+
+        if (!$karyawan) {
+            return response()->json(['message' => 'Karyawan tidak ditemukan'], 404);
+        }
+
+        return response()->json($karyawan, 200);
+    }
+
+    public function update(Request $request, $id)
+{
+    $karyawan = Karyawan::find($id);
+
+    if (!$karyawan) {
+        return response()->json(['message' => 'Karyawan not found'], 404);
+    }
+
+    $karyawan->update($request->all());
+
+    return response()->json(['message' => 'Karyawan updated', 'data' => $karyawan]);
 }
+
+    public function destroy($id)
+    {
+        $karyawan = Karyawan::find($id);
+
+        if (!$karyawan) {
+            return response()->json(['message' => 'Karyawan tidak ditemukan'], 404);
+        }
+
+        $karyawan->delete();
+
+        return response()->json(['message' => 'Karyawan berhasil dihapus'], 200);
+    }
+
+    public function resetPassword(Request $request, $id)
+{
+    $karyawan = Karyawan::find($id);
+
+    if (!$karyawan) {
+        return response()->json(['message' => 'Karyawan not found'], 404);
+    }
+
+    $request->validate([
+        'new_password' => 'required|min:6'
+    ]);
+
+    $karyawan->password = Hash::make($request->new_password);
+    $karyawan->save();
+
+    return response()->json(['message' => 'Password reset successful']);
+}
+
+    public function filter(Request $request)
+{
+    $query = Karyawan::query();
+
+    if ($request->has('role')) {
+        $query->where('role', $request->role);
+    }
+
+    if ($request->has('status_karyawan')) {
+        $query->where('status_karyawan', $request->status_karyawan);
+    }
+
+    $filtered = $query->get();
+
+    return response()->json($filtered);
+}
+
+
+}
+
+
+
