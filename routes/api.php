@@ -8,6 +8,7 @@ use App\Http\Controllers\OmalController;
 use App\Http\Controllers\AsetController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\TransaksiController;
 
 
 // Auth
@@ -66,3 +67,11 @@ Route::get('/pengeluaran/{id}', [PengeluaranController::class, 'show']);
 Route::put('/pengeluaran/{id}', [PengeluaranController::class, 'update']);
 Route::delete('/pengeluaran/{id}', [PengeluaranController::class, 'destroy']);
 Route::get('/pengeluaran-filter', [PengeluaranController::class, 'filter']);
+
+
+// Transaksi
+Route::post('/transaksi', [TransaksiController::class, 'store']);
+Route::get('/transaksi', [TransaksiController::class, 'index']);
+Route::get('/transaksi/{id}', [TransaksiController::class, 'show']);
+Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
+Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
