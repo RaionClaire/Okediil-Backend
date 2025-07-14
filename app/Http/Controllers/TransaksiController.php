@@ -1,10 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\Transaksi;
 use App\Models\Customer;
 use App\Models\Pembelian;
@@ -12,9 +12,14 @@ use App\Models\Pembelian;
 
 class TransaksiController extends Controller
 {
-   
+
 
 public function store(Request $request) {
+
+    $user = Auth::user();
+    if (!$user) {
+        return response()->json(['message' => 'Unauthorized'], 401);
+    }
     $validated = $request->validate([
         'id_customer' => 'required|exists:customers,id_customer',
         'servis_layanan' => 'required|string',
