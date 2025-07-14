@@ -29,4 +29,5 @@ public function karyawan() {
 public function pembelian() {
     return $this->belongsTo(Pembelian::class, 'id_pembelian', 'id_pembelian');
 }
+
 }

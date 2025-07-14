@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Transaksi;
 use App\Models\Customer;
 use App\Models\Pembelian;
@@ -16,7 +17,6 @@ class TransaksiController extends Controller
 public function store(Request $request) {
     $validated = $request->validate([
         'id_customer' => 'required|exists:customers,id_customer',
-        'id_karyawan' => 'required|exists:karyawan,id_karyawan',
         'servis_layanan' => 'required|string',
         'merk' => 'required|string',
         'tipe' => 'required|string',
@@ -27,6 +27,8 @@ public function store(Request $request) {
         'total_biaya' => 'required|numeric',
         'status_transaksi' => 'required|string',
     ]);
+
+    $validated['id_karyawan'] = Auth::user()->id_karyawan;
 
     DB::transaction(function () use ($validated) {
         $transaksi = Transaksi::create($validated);
@@ -95,6 +97,25 @@ public function store(Request $request) {
         return response()->json(['message' => 'Transaksi berhasil dihapus']);
     }
 
+    public function filter()
+    {
+        $query = Transaksi::query();
+
+        if (request()->has('year')) {
+            $query->whereYear('tanggal_masuk', request()->year);
+        }
+
+        if (request()->has('month')) {
+            $query->whereMonth('tanggal_masuk', request()->month);
+        }
+
+        return response()->json($query->get(), 200);
+
+    }
 
 
 }
+
+
+
+

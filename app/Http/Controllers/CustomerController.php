@@ -117,14 +117,6 @@ class CustomerController extends Controller
     {
         $query = Customer::query();
 
-        if ($request->has('nama')) {
-            $query->where('nama', 'like', '%' . $request->nama . '%');
-        }
-
-        if ($request->has('no_hp')) {
-            $query->where('no_hp', 'like', '%' . $request->no_hp . '%');
-        }
-
         if ($request->has('jenis_kelamin')) {
             $query->where('jenis_kelamin', $request->jenis_kelamin);
         }
@@ -144,4 +136,6 @@ class CustomerController extends Controller
             'data' => $customers
         ], 200);
     }
+
+
 }

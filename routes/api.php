@@ -14,6 +14,9 @@ use App\Http\Controllers\TransaksiController;
 // Auth
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/transaksi', [TransaksiController::class, 'store']);
+});
 
 
 // Karyawan
@@ -75,3 +78,7 @@ Route::get('/transaksi', [TransaksiController::class, 'index']);
 Route::get('/transaksi/{id}', [TransaksiController::class, 'show']);
 Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
 Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
+Route::get('users/{id}', function ($id) {
+    return response()->json(['message' => 'User found', 'id' => $id]);
+});
+Route::get('/transaksi-filter', [TransaksiController::class, 'filter']);
