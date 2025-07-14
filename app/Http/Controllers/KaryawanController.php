@@ -10,7 +10,6 @@ class KaryawanController extends Controller
 {
     public function store(Request $request)
     {
-        // 1️⃣ Validasi input dari frontend
         $validated = $request->validate([
             'id_karyawan'           => 'required|string|size:6|unique:karyawan,id_karyawan',
             'nama'                  => 'required|string|max:50',

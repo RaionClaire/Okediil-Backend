@@ -1,12 +1,12 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Karyawan;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -17,63 +17,34 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        try {
-            $user = Karyawan::where($request->id_karyawan);
+        $karyawan = Karyawan::where('id_karyawan', $request->id_karyawan)->first();
 
-$user = Karyawan::where('id_karyawan', (string)$request->id_karyawan)->first();
-
-
-            if (!$user) {
-                return response()->json(['message' => 'Login gagal karena ID atau password salah'], 401);
-            }
-
-            if (!Hash::check($request->password, $user->password)) {
-                return response()->json(['message' => 'Login gagal karena ID atau password salah'], 401);
-            }
-
-            // Delete existing tokens for this user (optional)
-            $user->tokens()->delete();
-
-            // Create new token
-            $token = $user->createToken('api_token')->plainTextToken;
-
-            return response()->json([
-                'message' => 'Login berhasil',
-                'token' => $token,
-                'user' => [
-                    'id_karyawan' => $user->id_karyawan,
-                    'nama' => $user->nama,                ],
+        if (!$karyawan || !Hash::check($request->password, $karyawan->password)) {
+            throw ValidationException::withMessages([
+                'id_karyawan' => ['The provided credentials are incorrect.'],
             ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Terjadi kesalahan saat login',
-                'error' => $e->getMessage()
-            ], 500);
         }
+
+        // Hapus token lama
+        $karyawan->tokens()->delete();
+
+        // Buat token baru
+        $token = $karyawan->createToken('auth-token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login berhasil',
+            'user' => $karyawan,
+            'token' => $token
+        ], 200);
     }
 
     public function logout(Request $request)
     {
-        try {
-            $request->user()->currentAccessToken()->delete();
+        // Hapus token yang sedang digunakan
+        $request->user()->currentAccessToken()->delete();
 
-            return response()->json([
-                'message' => 'Logout berhasil'
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Terjadi kesalahan saat logout',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function user(Request $request)
-    {
         return response()->json([
-            'user' => $request->user()
-        ]);
+            'message' => 'Logout berhasil'
+        ], 200);
     }
 }

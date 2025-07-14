@@ -14,12 +14,12 @@ use App\Http\Controllers\TransaksiController;
 // Auth
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/transaksi', [TransaksiController::class, 'index']);
-    Route::post('/transaksi', [TransaksiController::class, 'store']);
-    Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
-    Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
-});
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::get('/transaksi', [TransaksiController::class, 'index']);
+//     Route::post('/transaksi', [TransaksiController::class, 'store']);
+//     Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
+//     Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
+// });
 
 
 // Karyawan
@@ -31,6 +31,16 @@ Route::delete('/karyawan/{id}', [KaryawanController::class, 'destroy']);
 Route::put('/karyawan/{id}/reset-password', [KaryawanController::class, 'resetPassword']);
 Route::get('/karyawan-filter', [KaryawanController::class, 'filter']);
 
+//Transaksi
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/transaksi', [TransaksiController::class, 'index']);
+    Route::post('/transaksi', [TransaksiController::class, 'store']);
+    Route::get('/transaksi/{id}', [TransaksiController::class, 'show']);
+    Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
+    Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
+    Route::get('/transaksi-filter', [TransaksiController::class, 'filter']);
+});
 
 //Customer
 Route::post('/customer', [CustomerController::class, 'store']);
@@ -83,3 +93,7 @@ Route::get('/pengeluaran-filter', [PengeluaranController::class, 'filter']);
     // Route::post('/transaksi', [TransaksiController::class, 'store']);
     // Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
     // Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
+
+
+// Testing
+

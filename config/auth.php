@@ -14,8 +14,8 @@ return [
     */
 
     'defaults' => [
-        'guard' => env('AUTH_GUARD', 'web'),
-        'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
+        'guard' => env('AUTH_GUARD', 'sanctum'),
+        'passwords' => env('AUTH_PASSWORD_BROKER', 'karyawan'),
     ],
 
     /*
@@ -36,11 +36,23 @@ return [
     */
 
     'guards' => [
+        'web' => [
+            'driver' => 'session',
+            'provider' => 'karyawan', 
+        ],
+
+        'api' => [
+            'driver' => 'token',
+            'provider' => 'karyawan',
+            'hash' => false,
+        ],
+
         'sanctum' => [
             'driver' => 'sanctum',
             'provider' => 'karyawan',
         ],
     ],
+
 
     /*
     |--------------------------------------------------------------------------
@@ -91,8 +103,8 @@ return [
     */
 
     'passwords' => [
-        'users' => [
-            'provider' => 'users',
+        'karyawan' => [
+            'provider' => 'karyawan',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,
