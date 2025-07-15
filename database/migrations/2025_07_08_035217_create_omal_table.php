@@ -17,6 +17,7 @@ Schema::create('omal', function (Blueprint $table) {
     $table->string('status_omal', 20);
     $table->string('keterangan', 1000);
     $table->timestamps();
+    $table->string('harga', 6);
 });
     }
 

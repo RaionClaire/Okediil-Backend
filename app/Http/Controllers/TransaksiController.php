@@ -11,9 +11,20 @@ use App\Models\Pembelian;
 
 class TransaksiController extends Controller
 {
+
+    public function testAuth(Request $request)
+{ 
+     if ($request->user('sanctum')) {
+            return "auth";
+      } else {
+            return "guest";
+      }
+    }
+
     public function store(Request $request) 
     {
-        $user = Auth::user();
+
+        $user = Auth::user('sanctum');
         if (!$user) {
             return response()->json([
                 'message' => 'Unauthorized - Token tidak valid atau sudah expired',

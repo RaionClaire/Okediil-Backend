@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
     Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
     Route::get('/transaksi-filter', [TransaksiController::class, 'filter']);
+    Route::get('/transaksi/test-auth', [TransaksiController::class, 'testAuth']);
 });
 
 //Customer

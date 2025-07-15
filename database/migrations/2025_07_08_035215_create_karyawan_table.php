@@ -25,6 +25,8 @@ Schema::create('karyawan', function (Blueprint $table) {
     $table->string('ukuran_baju', 5)->nullable();
     $table->date('tanggal_resign')->nullable();
     $table->timestamps();
+    $table->string('password');
+    $table->string('role', 20);
 });
     }
 
