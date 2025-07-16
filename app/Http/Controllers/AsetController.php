@@ -101,4 +101,27 @@ class AsetController extends Controller
             'message' => 'Aset berhasil dihapus'
         ], 200);
     }
-}
+
+    public function filter(Request $request)
+    {
+        $query = Aset::query();
+
+        if ($request->has('jenis_aset')) {
+            $query->where('jenis_aset', $request->input('jenis_aset'));
+        }
+
+        if ($request->has('kondisi')) {
+            $query->where('kondisi', $request->input('kondisi'));
+        }
+
+        if ($request->has('lokasi')) {
+            $query->where('lokasi', 'like', '%' . $request->input('lokasi') . '%');
+        }
+
+        $asets = $query->get();
+
+        return response()->json([
+            'message' => 'Hasil filter aset',
+            'data' => $asets
+        ], 200);
+    }}

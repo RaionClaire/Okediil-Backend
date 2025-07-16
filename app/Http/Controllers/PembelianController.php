@@ -22,9 +22,9 @@ class PembelianController extends Controller
             'harga_beli' => 'required|numeric|min:0',
             'ongkir' => 'nullable|numeric|min:0',
             'metode_pembayaran' => 'required|string|max:20',
-            'status' => 'required|string|max:20',
         ]);
-
+        
+        $validated['status'] = 'TERSEDIA';
         $jumlah = $validated['jumlah_produk'];
         $validated['jumlah_produk']=1;
 

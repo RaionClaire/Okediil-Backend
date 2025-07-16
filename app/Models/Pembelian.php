@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pembelian extends Model
 {
-    protected $table = 'pembelian'; // Nama tabel
-    protected $primaryKey = 'id_pembelian'; // Kunci primer
-    public $incrementing = true; // Kunci primer auto-increment
-    protected $keyType = 'int'; // Tipe data kunci primer
+    protected $table = 'pembelian'; 
+    protected $primaryKey = 'id_pembelian'; 
+    public $incrementing = true; 
+    protected $keyType = 'int';
 
     protected $fillable = [
         'nama_produk',
