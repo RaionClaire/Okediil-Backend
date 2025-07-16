@@ -87,5 +87,25 @@ class PengeluaranController extends Controller
         return response()->json(['message' => 'Pengeluaran berhasil dihapus']);
     }
 
+    public function filter(Request $request)
+    {
+        $query = Pengeluaran::query();
+
+        if ($request->has('tanggal')) {
+            $query->whereDate('tanggal', $request->input('tanggal'));
+        }
+
+        if ($request->has('jenis_pengeluaran')) {
+            $query->where('jenis_pengeluaran', $request->input('jenis_pengeluaran'));
+        }
+
+        $pengeluaran = $query->get();
+
+        return response()->json([
+            'message' => 'Hasil filter pengeluaran',
+            'data' => $pengeluaran
+        ], 200);
+    }
+
 }
  
