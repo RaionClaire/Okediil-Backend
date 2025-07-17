@@ -9,11 +9,22 @@ use App\Http\Controllers\AsetController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\TransaksiController;
+use Illuminate\Support\Facades\Log;
 
-
+Route::get('log-viewers', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 // Auth
-Route::post('/login', [AuthController::class, 'login']);
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+Route::post('/login', function (\Illuminate\Http\Request $request) {
+    Log::info('Login attempt: ' . $request->input('email'));
+    return app(AuthController::class)->login($request);
+});
+// Log::info('User logged in: ' . $request->user()->id_karyawan);
+Route::middleware('auth:sanctum')->post('/logout', function (\Illuminate\Http\Request $request) {
+    Log::info('Middleware auth:sanctum passed for user: ' . ($user->id_karyawan ?? 'unknown'));
+
+    $user = $request->user();
+    Log::info('Middleware auth:sanctum passed for user: ' . ($user->id_karyawan ?? 'unknown'));
+    return app(AuthController::class)->logout($request);
+});
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::get('/transaksi', [TransaksiController::class, 'index']);
 //     Route::post('/transaksi', [TransaksiController::class, 'store']);

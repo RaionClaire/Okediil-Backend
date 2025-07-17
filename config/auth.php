@@ -77,6 +77,8 @@ return [
             'model' => App\Models\Karyawan::class,
         ],
 
+        Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class
+
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',

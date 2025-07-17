@@ -7,6 +7,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+
+
 
 class AuthController extends Controller
 {
@@ -31,6 +40,8 @@ class AuthController extends Controller
         // Buat token baru
         $token = $karyawan->createToken('auth-token')->plainTextToken;
 
+        Log::info('Hello, Laravel logging works!');
+
         return response()->json([
             'message' => 'Login berhasil',
             'user' => $karyawan,
@@ -40,6 +51,15 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        Log::info("uda sampe sini");
+        if ($request->user()) {
+            $request->user()->currentAccessToken()->delete();
+            return response()->json(['message' => 'Logged out']);
+        } else {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+}
+
+        Log::info('User logged out: ' . $request->user()->id_karyawan);
         // Hapus token yang sedang digunakan
         $request->user()->currentAccessToken()->delete();
 

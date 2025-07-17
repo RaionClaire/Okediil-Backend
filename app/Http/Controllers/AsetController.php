@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Aset; 
+use Illuminate\Support\Facades\Log;
 
 class AsetController extends Controller
 {
