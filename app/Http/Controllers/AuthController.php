@@ -42,5 +42,21 @@ class AuthController extends Controller
             'token' => $token,
         ], 200);
     }
+
+    public function logout(Request $request)
+    {
+
+        Log::debug('Current user:', ['user' => Auth::user()]);
+
+//         $karyawan = Auth::User();
+
+//         if ($karyawan) {
+//             $karyawan->tokens()->delete();
+//             Log::info('User logged out: ' . $karyawan->id_karyawan);
+//             return response()->json(['message' => 'Logout successful'], 200);
+//         }
+
+//         return response()->json(['message' => 'No user logged in'], 401);
+    }
 }
    

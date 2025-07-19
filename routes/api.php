@@ -16,6 +16,7 @@ Route::get('log-viewers', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::cl
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
+
 // Protected Routes - Transaksi
     Route::get('/transaksi', [TransaksiController::class, 'index']);
     Route::post('/transaksi', [TransaksiController::class, 'store']);
