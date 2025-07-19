@@ -4,59 +4,106 @@ namespace App\Http\Controllers;
 
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    public function showLogin()
+    {
+        return view('auth.login');
+    }
+
     public function login(Request $request)
     {
-        $fields = $request->validate([
-            'id_karyawan' => 'required|string',
-            'password' => 'required|string',
+        $credentials = $request->validate([
+            'id_karyawan' => 'required',
+            'password' => 'required'
         ]);
 
-        $karyawan = Karyawan::where('id_karyawan', $fields['id_karyawan'])->first();
-
-        if (!$karyawan || !Hash::check($fields['password'], $karyawan->password)) {
-            Log::warning('Failed login attempt - user not found: ' . $fields['id_karyawan']);
-            throw ValidationException::withMessages([
-                'id_karyawan' => ['The provided credentials are incorrect.'],
-            ]);
+        // Cek apakah karyawan ada dan aktif
+        $karyawan = Karyawan::where('id_karyawan', $credentials['id_karyawan'])->first();
+        
+        if (!$karyawan) {
+            return back()->withErrors([
+                'id_karyawan' => 'ID Karyawan tidak ditemukan.',
+            ])->onlyInput('id_karyawan');
         }
 
-        // Optional: delete old tokens
-        $karyawan->tokens()->delete();
+        if (!$karyawan->isActive()) {
+            return back()->withErrors([
+                'id_karyawan' => 'Akun karyawan tidak aktif.',
+            ])->onlyInput('id_karyawan');
+        }
 
-        // Create new token
-        $token = $karyawan->createToken('auth-token')->plainTextToken;
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            $request->session()->regenerate();
 
-        Log::info('User logged in: ' . $karyawan->id_karyawan);
+            return $this->redirectBasedOnRole($user);
+        }
 
-        return response()->json([
-            'message' => 'Login successful',
-            'user' => $karyawan,
-            'token' => $token,
-        ], 200);
+        return back()->withErrors([
+            'id_karyawan' => 'ID Karyawan atau password salah.',
+        ])->onlyInput('id_karyawan');
+    }
+
+    private function redirectBasedOnRole($user)
+    {
+        switch (strtolower($user->role)) {
+            case 'superadmin':
+                return redirect('/superadmin/dashboard');
+            case 'admin':
+                return redirect('/admin/dashboard');
+            case 'teknisi':
+                return redirect('/teknisi/dashboard');
+            default:
+                return redirect('/dashboard');
+        }
     }
 
     public function logout(Request $request)
     {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login')->with('success', 'Berhasil logout');
+    }
 
-        Log::debug('Current user:', ['user' => Auth::user()]);
+    public function showChangePassword()
+    {
+        return view('auth.change-password');
+    }
 
-//         $karyawan = Auth::User();
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:6|confirmed',
+        ]);
 
-//         if ($karyawan) {
-//             $karyawan->tokens()->delete();
-//             Log::info('User logged out: ' . $karyawan->id_karyawan);
-//             return response()->json(['message' => 'Logout successful'], 200);
-//         }
+        // Ambil user yang sedang login
+        $user = Auth::user();
 
-//         return response()->json(['message' => 'No user logged in'], 401);
+        // Verifikasi password lama
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Password lama tidak sesuai']);
+        }
+
+        // Update password menggunakan query builder jika method update tidak work
+        try {
+            // Cara 1: Pakai Eloquent update
+            Karyawan::where('id_karyawan', $user->id_karyawan)
+                    ->update(['password' => Hash::make($request->new_password)]);
+            
+            // Logout setelah ganti password
+            Auth::logout();
+            $request->session()->invalidate();
+            
+            return redirect()->route('login')->with('success', 'Password berhasil diubah, silakan login kembali');
+            
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Gagal mengubah password: ' . $e->getMessage()]);
+        }
     }
 }
-   

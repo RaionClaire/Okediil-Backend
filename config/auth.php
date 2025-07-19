@@ -72,7 +72,7 @@ return [
     */
 
     'providers' => [
-        'karyawan' => [
+        'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\Karyawan::class,
         ],
