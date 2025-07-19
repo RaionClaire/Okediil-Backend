@@ -7,64 +7,40 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
-
-
+use Illuminate\Routing\Controller;
 
 class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $request->validate([
+        $fields = $request->validate([
             'id_karyawan' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        $karyawan = Karyawan::where('id_karyawan', $request->id_karyawan)->first();
+        $karyawan = Karyawan::where('id_karyawan', $fields['id_karyawan'])->first();
 
-        if (!$karyawan || !Hash::check($request->password, $karyawan->password)) {
+        if (!$karyawan || !Hash::check($fields['password'], $karyawan->password)) {
+            Log::warning('Failed login attempt - user not found: ' . $fields['id_karyawan']);
             throw ValidationException::withMessages([
                 'id_karyawan' => ['The provided credentials are incorrect.'],
             ]);
         }
 
-        // Hapus token lama
+        // Optional: delete old tokens
         $karyawan->tokens()->delete();
 
-        // Buat token baru
+        // Create new token
         $token = $karyawan->createToken('auth-token')->plainTextToken;
 
-        Log::info('Hello, Laravel logging works!');
+        Log::info('User logged in: ' . $karyawan->id_karyawan);
 
         return response()->json([
-            'message' => 'Login berhasil',
+            'message' => 'Login successful',
             'user' => $karyawan,
-            'token' => $token
-        ], 200);
-    }
-
-    public function logout(Request $request)
-    {
-        Log::info("uda sampe sini");
-        if ($request->user()) {
-            $request->user()->currentAccessToken()->delete();
-            return response()->json(['message' => 'Logged out']);
-        } else {
-            return response()->json(['message' => 'Unauthenticated'], 401);
-}
-
-        Log::info('User logged out: ' . $request->user()->id_karyawan);
-        // Hapus token yang sedang digunakan
-        $request->user()->currentAccessToken()->delete();
-
-        return response()->json([
-            'message' => 'Logout berhasil'
+            'token' => $token,
         ], 200);
     }
 }
+   

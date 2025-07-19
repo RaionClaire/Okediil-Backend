@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Karyawan;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Laravel\Sanctum\HasApiTokens;
 
 class KaryawanController extends Controller
 {
+    use HasApiTokens;
     public function store(Request $request)
     {
         $validated = $request->validate([
