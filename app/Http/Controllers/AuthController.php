@@ -16,15 +16,15 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $credentials = $request->only('id_karyawan', 'password');
+        // Find user by id_karyawan
+        $user = User::where('id_karyawan', $request->id_karyawan)->first();
 
-        if (!Auth::attempt($credentials)) {
+        // Check if user exists and password is correct
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        
+        // Check if Sanctum is installed
         if (!method_exists($user, 'createToken')) {
             return response()->json([
                 'message' => 'Token creation not available. Please install Laravel Sanctum.',
