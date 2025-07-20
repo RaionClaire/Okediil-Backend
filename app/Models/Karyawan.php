@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 
-class Karyawan extends Model
+class Karyawan extends Authenticatable
 {
+    use HasApiTokens, Notifiable;
+
     protected $table = 'karyawan';
     protected $primaryKey = 'id_karyawan';
     public $incrementing = false;
@@ -25,16 +29,10 @@ class Karyawan extends Model
         'ukuran_baju',
         'tanggal_resign',
         'role',
+        'password',
     ];
 
-    protected $dates = [
-        'tanggal_masuk',
-        'tanggal_resign',
+    protected $hidden = [
+        'password'
     ];
-
-    // Relationship with User
-    public function user()
-    {
-        return $this->hasOne(User::class, 'id_karyawan', 'id_karyawan');
-    }
 }
