@@ -72,9 +72,9 @@ return [
     */
 
     'providers' => [
-        'karyawan' => [
+        'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Karyawan::class,
+            'model' => App\Models\User::class,
         ],
 
         Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class

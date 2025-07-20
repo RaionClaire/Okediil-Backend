@@ -3,62 +3,57 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
-    {
-        $fields = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|unique:users,email',
-            'password' => 'required|string|confirmed'
-        ]);
-        $user = User::create([
-            'name' => $fields['name'],
-            'email' => $fields['email'],
-            'password' => bcrypt($fields['password']),
-        ]);
-        $token = $user->createToken('access_token')->plainTextToken;
-        $response = [
-            'user' => $user,
-            'token' => $token
-        ];
-        return response($response, 201);
-    }
-
-
     public function login(Request $request)
     {
-        $fields = $request->validate([
-            "email" => "required|string",
-            "password" => "required|string"
+        $request->validate([
+            'id_karyawan' => 'required|string',
+            'password' => 'required|string',
         ]);
 
-        //Check the email
-        $user = User::where('email', $fields['email'])->first();
+        $credentials = $request->only('id_karyawan', 'password');
 
-        //Check the password
-        if (!$user || !Hash::check($fields['password'], $user->password)) {
-            return response([
-                'message' => 'Bad creds'
-            ], 401);
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
-        $token=$user->createToken('access_token')->plainTextToken;
-        $response = [
-            'message' => 'Login successfully',
-            'token' => $token
-        ];
-        return response($response, 201);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        if (!method_exists($user, 'createToken')) {
+            return response()->json([
+                'message' => 'Token creation not available. Please install Laravel Sanctum.',
+            ], 500);
+        }
+        
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user,
+        ]);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
-        return [
-            'message' => 'Logout successfully'
-        ];
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Logged out']);
+    }
+
+    public function me(Request $request)
+    {
+        $user = $request->user();
+        
+        // Load karyawan relationship to get full employee data
+        $user->load('karyawan');
+        
+        return response()->json($user);
     }
 }
