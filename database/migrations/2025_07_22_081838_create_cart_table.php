@@ -13,8 +13,12 @@ return new class extends Migration
     {
         Schema::create('cart', function (Blueprint $table) {
             $table->id('id_cart');
-            $table->foreignId('id_transaksi')->constrained('transaksi')->onDelete('cascade');
-            $table->foreignId('id_pembelian')->constrained('pembelian')->onDelete('restrict');
+            $table->unsignedBigInteger('id_transaksi')->nullable();
+            $table->unsignedBigInteger('id_pembelian');
+
+            // Foreign keys
+            $table->foreign('id_transaksi')->references('id_transaksi')->on('transaksi')->onDelete('cascade');
+            $table->foreign('id_pembelian')->references('id_pembelian')->on('pembelian')->onDelete('restrict');
             $table->timestamps();
         });
     }

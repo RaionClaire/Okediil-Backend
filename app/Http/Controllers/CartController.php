@@ -3,24 +3,38 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Cart;
 
 class CartController extends Controller
 {
     public function index()
     {
-        // Logic to retrieve cart items
-        return response()->json(['message' => 'Cart items retrieved successfully']);
+        $carts = Cart::all();
+        return response()->json(['data' => $carts]);
+    }
+
+    public function show($id)
+    {
+        $cart = Cart::find($id);
+        if (!$cart) {
+            return response()->json(['message' => 'Cart not found'], 404);
+        }
+        return response()->json(['data' => $cart]);
     }
 
     public function store(Request $request)
     {
-        // Logic to add item to cart
-        return response()->json(['message' => 'Item added to cart successfully'], 201);
+        $cart = Cart::create($request->all());
+        return response()->json(['message' => 'Item added to cart successfully', 'data' => $cart], 201);
     }
 
     public function destroy($id)
     {
-        // Logic to remove item from cart
+        $cart = Cart::find($id);
+        if (!$cart) {
+            return response()->json(['message' => 'Cart not found'], 404);
+        }
+        $cart->delete();
         return response()->json(['message' => 'Item removed from cart successfully']);
     }
 }
