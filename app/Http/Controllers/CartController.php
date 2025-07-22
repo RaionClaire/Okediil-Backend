@@ -9,8 +9,7 @@ class CartController extends Controller
 {
     public function index()
     {
-        $carts = Cart::all();
-        return response()->json(['data' => $carts]);
+        return response()->json(['data' => Cart::all()]);
     }
 
     public function show($id)
@@ -24,9 +23,24 @@ class CartController extends Controller
 
     public function store(Request $request)
     {
-        $cart = Cart::create($request->all());
-        return response()->json(['message' => 'Item added to cart successfully', 'data' => $cart], 201);
+        $request->validate([
+            'id_transaksi' => 'nullable|exists:transaksi,id',
+            'id_pembelian' => 'required|exists:pembelian,id',
+        ]);
+
+        $cart = Cart::create($request->only(['id_transaksi', 'id_pembelian']));
+
+        if ($request->filled('id_transaksi')) {
+            $pembelian = \App\Models\Pembelian::find($request->id_pembelian);
+            if ($pembelian) {
+                $pembelian->status = 0;
+                $pembelian->save();
+            }
+        }
+
+        return response()->json(['message' => 'Item added to cart', 'data' => $cart], 201);
     }
+
 
     public function destroy($id)
     {
@@ -35,6 +49,6 @@ class CartController extends Controller
             return response()->json(['message' => 'Cart not found'], 404);
         }
         $cart->delete();
-        return response()->json(['message' => 'Item removed from cart successfully']);
+        return response()->json(['message' => 'Item removed from cart']);
     }
 }

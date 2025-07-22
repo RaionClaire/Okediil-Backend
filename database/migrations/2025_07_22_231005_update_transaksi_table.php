@@ -11,18 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-    Schema::table('pembelian', function (Blueprint $table) {
-        $table->integer('status')->default(1)->after('ongkir'); 
+    Schema::table('transaksi', function (Blueprint $table) {
+        $table->dropForeign(['id_pembelian']);
     });
-    }
 
+    Schema::table('transaksi', function (Blueprint $table) {
+        $table->dropColumn('id_pembelian');
+    });
+}
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-    Schema::table('pembelian', function (Blueprint $table) {
-        $table->dropColumn('status');
-    });
+        //
     }
 };

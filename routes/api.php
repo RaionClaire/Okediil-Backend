@@ -9,11 +9,13 @@ use App\Http\Controllers\AsetController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\CartController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Rap2hpoutre\LaravelLogViewer\LogViewerController;
 use App\Models\User;
+
 
 Route::get('log-viewers', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 
@@ -33,14 +35,30 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-
 // Protected Routes - Transaksi
-    Route::get('/transaksi', [TransaksiController::class, 'index']);
-    Route::post('/transaksi', [TransaksiController::class, 'store']);
-    Route::get('/transaksi/{id}', [TransaksiController::class, 'show']);
-    Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
-    Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
-    Route::get('/transaksi-filter', [TransaksiController::class, 'filter']);
+Route::get('/transaksi', [TransaksiController::class, 'index']);
+Route::post('/transaksi', [TransaksiController::class, 'store']);
+Route::get('/transaksi/{id}', [TransaksiController::class, 'show']);
+Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
+Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
+Route::get('/transaksi-filter', [TransaksiController::class, 'filter']);
+
+// Public Routes - Cart
+Route::post('/cart', [CartController::class, 'store']);
+Route::get('/cart', [CartController::class, 'index']);
+Route::get('/cart/{id}', [CartController::class, 'show']);
+Route::put('/cart/{id}', [CartController::class, 'update']);
+Route::delete('/cart/{id}', [CartController::class, 'destroy']);
+Route::get('/cart-filter', [CartController::class, 'filter']);
+
+
+// Public Routes - Pembelian
+Route::post('/pembelian', [PembelianController::class, 'store']);
+Route::get('/pembelian', [PembelianController::class, 'index']);
+Route::get('/pembelian/{id}', [PembelianController::class, 'show']);
+Route::put('/pembelian/{id}', [PembelianController::class, 'update']);
+Route::delete('/pembelian/{id}', [PembelianController::class, 'destroy']);
+Route::get('/pembelian-filter', [PembelianController::class, 'filter']);
 
 
 // Public Routes - Karyawan
@@ -76,13 +94,7 @@ Route::put('/aset/{id}', [AsetController::class, 'update']);
 Route::delete('/aset/{id}', [AsetController::class, 'destroy']);
 Route::get('/aset-filter', [AsetController::class, 'filter']);
 
-// Public Routes - Pembelian
-Route::post('/pembelian', [PembelianController::class, 'store']);
-Route::get('/pembelian', [PembelianController::class, 'index']);
-Route::get('/pembelian/{id}', [PembelianController::class, 'show']);
-Route::put('/pembelian/{id}', [PembelianController::class, 'update']);
-Route::delete('/pembelian/{id}', [PembelianController::class, 'destroy']);
-Route::get('/pembelian-filter', [PembelianController::class, 'filter']);
+
 
 // Public Routes - Pengeluaran
 Route::post('/pengeluaran', [PengeluaranController::class, 'store']);
