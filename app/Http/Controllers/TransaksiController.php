@@ -90,9 +90,9 @@ class TransaksiController extends Controller
     {
         $user = Auth::user();
         return response()->json('hi');
-        // if (!$user) {
-        //     return response()->json(['message' => 'Unauthorized'], 401);
-        // }
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
         $transaksi = Transaksi::with(['customer', 'karyawan', 'pembelian'])->get();
         return response()->json($transaksi);

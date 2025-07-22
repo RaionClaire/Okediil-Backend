@@ -17,10 +17,6 @@ use App\Models\User;
 
 Route::get('log-viewers', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 
-// // Auth Routes
-// Route::post('/login', [AuthController::class, 'login']);
-// Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-
 // Newest Auth Routes
 
 
@@ -45,7 +41,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
     Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
     Route::get('/transaksi-filter', [TransaksiController::class, 'filter']);
-    Route::get('/transaksi/test-auth', [TransaksiController::class, 'testAuth']);
 
 
 // Public Routes - Karyawan
