@@ -64,4 +64,15 @@ class OmalController extends Controller
         $omal->delete();
         return response()->json(['message' => 'Omal deleted']);
     }
+
+    public function filter(Request $request)
+    {
+        $status = $request->query('status');
+        if (!$status) {
+            return response()->json(['message' => 'Status query parameter is required'], 400);
+        }
+
+        $omals = Omal::where('status_omal', $status)->get();
+        return response()->json($omals);
+    }
 }
