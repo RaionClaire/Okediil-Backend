@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Hash;
 use Rap2hpoutre\LaravelLogViewer\LogViewerController;
 use App\Models\User;
 
+Route::get('/', function () {
+    return response()->json(['message' => 'Welcome to Okediil API']);
+});
 
 Route::get('log-viewers', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 
