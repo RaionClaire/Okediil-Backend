@@ -43,7 +43,7 @@ class TransaksiController extends Controller
             'tipe' => 'required|string',
             'warna' => 'required|string',
             'tanggal_masuk' => 'required|date',
-            'id_pembelian' => 'nullable|exists:pembelian,id_pembelian',
+            'id_cart' => 'nullable|exists:cart,id_cart',
             'kuantitas' => 'required|integer|min:1',
             'total_biaya' => 'required|numeric',
             'status_transaksi' => 'required|string',
