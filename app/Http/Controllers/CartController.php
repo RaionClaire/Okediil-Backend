@@ -7,19 +7,7 @@ use App\Models\Cart;
 
 class CartController extends Controller
 {
-    public function index()
-    {
-        return response()->json(['data' => Cart::all()]);
-    }
 
-    public function show($id)
-    {
-        $cart = Cart::find($id);
-        if (!$cart) {
-            return response()->json(['message' => 'Cart not found'], 404);
-        }
-        return response()->json(['data' => $cart]);
-    }
 
     public function store(Request $request)
     {
@@ -38,6 +26,22 @@ class CartController extends Controller
 
         return response()->json(['message' => 'Item added to cart', 'data' => $cart], 201);
     }
+
+
+    public function index()
+    {
+        return response()->json(['data' => Cart::all()]);
+    }
+
+    public function show($id)
+    {
+        $cart = Cart::find($id);
+        if (!$cart) {
+            return response()->json(['message' => 'Cart not found'], 404);
+        }
+        return response()->json(['data' => $cart]);
+    }
+
 
 
 

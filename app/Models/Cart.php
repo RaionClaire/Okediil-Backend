@@ -8,6 +8,8 @@ class Cart extends Model
 {
     protected $table = 'cart';
     protected $primaryKey = 'id_cart';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'id_transaksi',
