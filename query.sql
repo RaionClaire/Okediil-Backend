@@ -139,3 +139,13 @@ MODIFY COLUMN id_pembelian INT NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE pembelian
 ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'TERSEDIA';
+
+-- ini kode jangan lupa ya ca nanti buat fetch nota 
+SELECT * FROM transaksi;
+
+SELECT p.* FROM pembelian p
+INNER JOIN transaksi t ON p.id_pembelian = t.id_pembelian
+WHERE t.id_transaksi = 5;
+
+SELECT * FROM transaksi WHERE id_transaksi = 5;
+
