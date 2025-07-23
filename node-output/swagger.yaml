@@ -1,0 +1,330 @@
+openapi: 3.0.0
+info:
+  title: Okediil API
+  description: Public API documentation for Okediil Service
+  version: 1.0.0
+servers:
+- url: /
+paths:
+  /api/login:
+    post:
+      tags:
+      - Auth
+      summary: POST /login
+      responses:
+        "200":
+          description: Success
+  /api/logout:
+    post:
+      tags:
+      - Auth
+      summary: POST /logout
+      responses:
+        "200":
+          description: Success
+  /api/me:
+    get:
+      tags:
+      - Auth
+      summary: GET /me
+      responses:
+        "200":
+          description: Success
+  /api/user:
+    get:
+      tags:
+      - Auth
+      summary: GET /user
+      responses:
+        "200":
+          description: Success
+  /api/karyawan:
+    get:
+      tags:
+      - Karyawan
+      summary: GET /karyawan
+      responses:
+        "200":
+          description: Success
+  /api/karyawan/{id}:
+    get:
+      tags:
+      - Karyawan
+      summary: "GET /karyawan/{id}"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Success
+  /api/karyawan/{id}/reset-password:
+    put:
+      tags:
+      - Karyawan
+      summary: "PUT /karyawan/{id}/reset-password"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Success
+  /api/karyawan-filter:
+    get:
+      tags:
+      - Karyawan
+      summary: GET /karyawan-filter
+      responses:
+        "200":
+          description: Success
+  /api/customer:
+    get:
+      tags:
+      - Customer
+      summary: GET /customer
+      operationId: ""
+      responses:
+        "200":
+          description: Success
+  /api/customer/{id}:
+    get:
+      tags:
+      - Customer
+      summary: "GET /customer/{id}"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Success
+  /api/customer-filter:
+    get:
+      tags:
+      - Customer
+      summary: GET /customer-filter
+      responses:
+        "200":
+          description: Success
+  /api/transaksi:
+    get:
+      tags:
+      - Transaksi
+      summary: GET /transaksi
+      responses:
+        "200":
+          description: Success
+  /api/transaksi/{id}:
+    get:
+      tags:
+      - Transaksi
+      summary: "GET /transaksi/{id}"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Success
+  /api/transaksi-filter:
+    get:
+      tags:
+      - Transaksi
+      summary: GET /transaksi-filter
+      responses:
+        "200":
+          description: Success
+  /api/cart:
+    get:
+      tags:
+      - Cart
+      summary: GET /cart
+      responses:
+        "200":
+          description: Success
+  /api/cart/{id}:
+    get:
+      tags:
+      - Cart
+      summary: "GET /cart/{id}"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Success
+  /api/cart-filter:
+    get:
+      tags:
+      - Cart
+      summary: GET /cart-filter
+      responses:
+        "200":
+          description: Success
+  /api/pembelian:
+    get:
+      tags:
+      - Pembelian
+      summary: GET /pembelian
+      responses:
+        "200":
+          description: Success
+  /api/pembelian/{id}:
+    get:
+      tags:
+      - Pembelian
+      summary: "GET /pembelian/{id}"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Success
+  /api/pembelian-filter:
+    get:
+      tags:
+      - Pembelian
+      summary: GET /pembelian-filter
+      responses:
+        "200":
+          description: Success
+  /api/omal:
+    get:
+      tags:
+      - Omal
+      summary: GET /omal
+      responses:
+        "200":
+          description: Success
+  /api/omal/{id}:
+    get:
+      tags:
+      - Omal
+      summary: "GET /omal/{id}"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Success
+  /api/omal-filter:
+    get:
+      tags:
+      - Omal
+      summary: GET /omal-filter
+      responses:
+        "200":
+          description: Success
+  /api/aset:
+    get:
+      tags:
+      - Aset
+      summary: GET /aset
+      responses:
+        "200":
+          description: Success
+  /api/aset/{id}:
+    get:
+      tags:
+      - Aset
+      summary: "GET /aset/{id}"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Success
+  /api/aset-filter:
+    get:
+      tags:
+      - Aset
+      summary: GET /aset-filter
+      responses:
+        "200":
+          description: Success
+  /api/pengeluaran:
+    get:
+      tags:
+      - Pengeluaran
+      summary: GET /pengeluaran
+      responses:
+        "200":
+          description: Success
+  /api/pengeluaran/{id}:
+    get:
+      tags:
+      - Pengeluaran
+      summary: "GET /pengeluaran/{id}"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Success
+  /api/pengeluaran-filter:
+    get:
+      tags:
+      - Pengeluaran
+      summary: GET /pengeluaran-filter
+      responses:
+        "200":
+          description: Success
+  /api/:
+    get:
+      tags:
+      - Misc
+      summary: GET /
+      responses:
+        "200":
+          description: Success
+  /api/log-viewers:
+    get:
+      tags:
+      - Misc
+      summary: GET /log-viewers
+      responses:
+        "200":
+          description: Success
+components: {}
