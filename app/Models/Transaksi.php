@@ -15,7 +15,7 @@ protected $fillable = [
     'id_customer', 'id_karyawan', 'servis_layanan', 'merk', 'tipe', 'warna',
     'tanggal_masuk', 'tanggal_keluar', 'tambahan', 'catatan', 'keluhan',
     'kelengkapan', 'pin', 'kerusakan', 'id_pembelian', 'kuantitas',
-    'garansi', 'total_biaya', 'status_transaksi',
+    'garansi', 'total_biaya', 'status_transaksi', 'teknisi'
 ];
 
 public function customer() {

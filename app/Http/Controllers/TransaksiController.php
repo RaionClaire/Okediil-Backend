@@ -51,9 +51,21 @@ public function store(Request $request)
         'garansi' => 'nullable|integer',
         'total_biaya' => 'required|numeric',
         'status_transaksi' => 'required|string',
+        'teknisi' => 'nullable|string|max:50',
     ]);
 
     $validated['id_karyawan'] = $user->id_karyawan;
+    if (isset($validated['teknisi'])) {
+        $teknisiExists = \App\Models\Karyawan::where('id_karyawan', $validated['teknisi'])
+            ->whereIn('role', ['teknisi', 'superadmin'])
+            ->exists();
+        
+        if (!$teknisiExists) {
+            return response()->json([
+                'message' => 'Teknisi tidak valid atau tidak memiliki role teknisi'
+            ], 422);
+        }
+    }
 
     try {
         // Buat transaksi
@@ -137,6 +149,7 @@ public function store(Request $request)
             'kuantitas' => 'required|integer|min:1',
             'total_biaya' => 'required|numeric',
             'status_transaksi' => 'required|string',
+            'teknisi' => 'nullable|string|max:50',
         ]);
 
         $transaksi->update($validated);
