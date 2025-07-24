@@ -26,7 +26,7 @@ class AuthController extends Controller
 
         // Check if user exists and password is correct
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Id atau password salah.'], 401);
         }
 
         // Check if Sanctum is installed
