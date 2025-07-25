@@ -202,4 +202,10 @@ class KaryawanController extends Controller
 
         return response()->json($filtered);
     }
+
+    public function totalKaryawan()
+    {
+        $total = Karyawan::count();
+        return response()->json(['total' => $total]);
+    }
 }

@@ -137,5 +137,25 @@ class PembelianController extends Controller
             'data' => $pembelians
         ], 200);
     }
+
+    public function totalPembelian()
+    {
+        $total = Pembelian::count();
+
+        return response()->json([
+            'message' => 'Total pembelian',
+            'data' => ['total' => $total]
+        ], 200);
+    }
+
+    public function totalOngkir()
+    {
+        $totalOngkir = Pembelian::sum('ongkir');
+
+        return response()->json([
+            'message' => 'Total ongkir pembelian',
+            'data' => ['total_ongkir' => $totalOngkir]
+        ], 200);
+    }
     
 }

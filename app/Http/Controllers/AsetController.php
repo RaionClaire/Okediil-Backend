@@ -125,4 +125,16 @@ class AsetController extends Controller
             'message' => 'Hasil filter aset',
             'data' => $asets
         ], 200);
-    }}
+    }
+
+    public function totalNominalAset()
+    {
+        $total = Aset::sum('harga');
+
+        return response()->json([
+            'message' => 'Total nominal aset',
+            'data' => ['total' => $total]
+        ], 200);
+    }
+
+}

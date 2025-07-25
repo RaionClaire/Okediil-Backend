@@ -75,4 +75,10 @@ class OmalController extends Controller
         $omals = Omal::where('status_omal', $status)->get();
         return response()->json($omals);
     }
+
+    public function totalNominalOmal()
+    {
+        $total = Omal::sum('harga');
+        return response()->json(['total' => $total]);
+    }
 }

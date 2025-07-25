@@ -59,7 +59,8 @@ Route::get('/pembelian/{id}', [PembelianController::class, 'show']);
 Route::put('/pembelian/{id}', [PembelianController::class, 'update']);
 Route::delete('/pembelian/{id}', [PembelianController::class, 'destroy']);
 Route::get('/pembelian-filter', [PembelianController::class, 'filter']);
-
+Route::get('/pembelian-total', [PembelianController::class, 'totalPembelian']);
+Route::get('/pembelian-total-ongkir', [PembelianController::class, 'totalOngkir']);
 
 // Public Routes - Karyawan
 Route::post('/karyawan', [KaryawanController::class, 'store']);
@@ -69,6 +70,7 @@ Route::put('/karyawan/{id}', [KaryawanController::class, 'update']);
 Route::delete('/karyawan/{id}', [KaryawanController::class, 'destroy']);
 Route::put('/karyawan/{id}/reset-password', [KaryawanController::class, 'resetPassword']);
 Route::get('/karyawan-filter', [KaryawanController::class, 'filter']);
+Route::get('/karyawan-total', [KaryawanController::class, 'totalKaryawan']);
 
 // Public Routes - Customer
 Route::post('/customer', [CustomerController::class, 'store']);
@@ -86,6 +88,8 @@ Route::get('/omal/{id}', [OmalController::class, 'show']);
 Route::put('/omal/{id}', [OmalController::class, 'update']);
 Route::delete('/omal/{id}', [OmalController::class, 'destroy']);
 Route::get('/omal-filter', [OmalController::class, 'filter']);
+Route::get('/omal-total-nominal', [OmalController::class, 'totalNominalOmal']);
+
 
 // Public Routes - Aset
 Route::post('/aset', [AsetController::class, 'store']);
@@ -94,6 +98,7 @@ Route::get('/aset/{id}', [AsetController::class, 'show']);
 Route::put('/aset/{id}', [AsetController::class, 'update']);
 Route::delete('/aset/{id}', [AsetController::class, 'destroy']);
 Route::get('/aset-filter', [AsetController::class, 'filter']);
+Route::get('/aset-total-nominal', [AsetController::class, 'totalNominalAset']);
 
 
 
