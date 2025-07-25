@@ -77,6 +77,7 @@ Route::get('/customer/{id}', [CustomerController::class, 'show']);
 Route::put('/customer/{id}', [CustomerController::class, 'update']);
 Route::delete('/customer/{id}', [CustomerController::class, 'destroy']);
 Route::get('/customer-filter', [CustomerController::class, 'filter']);
+Route::get('/customer-total', [CustomerController::class, 'totalCustomers']);
 
 // Public Routes - Omal
 Route::post('/omal', [OmalController::class, 'store']);

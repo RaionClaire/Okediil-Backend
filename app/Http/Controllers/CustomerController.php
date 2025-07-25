@@ -137,5 +137,15 @@ class CustomerController extends Controller
         ], 200);
     }
 
+    public function totalCustomers()
+    {
+        $total = Customer::count();
+
+        return response()->json([
+            'message' => 'Total customer',
+            'data' => ['total' => $total]
+        ], 200);
+    }
+
 
 }
