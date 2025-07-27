@@ -43,6 +43,7 @@ Route::get('/transaksi/{id}', [TransaksiController::class, 'show']);
 Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
 Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
 Route::get('/transaksi-filter', [TransaksiController::class, 'filter']);
+Route::get('/transaksi-total', [TransaksiController::class, 'totalTransaksi']);
 
 // Public Routes - Cart
 Route::post('/cart', [CartController::class, 'store']);
@@ -110,6 +111,7 @@ Route::get('/pengeluaran/{id}', [PengeluaranController::class, 'show']);
 Route::put('/pengeluaran/{id}', [PengeluaranController::class, 'update']);
 Route::delete('/pengeluaran/{id}', [PengeluaranController::class, 'destroy']);
 Route::get('/pengeluaran-filter', [PengeluaranController::class, 'filter']);
+Route::get('/pengeluaran-total', [PengeluaranController::class, 'totalPengeluaran']);
 
 
 // Biaya
@@ -118,3 +120,4 @@ Route::get('/biaya', [BiayaController::class, 'index']);
 Route::get('/biaya/{id}', [BiayaController::class, 'show']);
 Route::put('/biaya/{id}', [BiayaController::class, 'update']);
 Route::delete('/biaya/{id}', [BiayaController::class, 'destroy']);
+Route::get('/biaya-total', [BiayaController::class, 'totalBiaya']);

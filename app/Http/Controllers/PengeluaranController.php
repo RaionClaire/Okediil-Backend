@@ -107,5 +107,15 @@ class PengeluaranController extends Controller
         ], 200);
     }
 
+    public function totalPengeluaran()
+    {
+        $total = Pengeluaran::sum('harga');
+
+        return response()->json([
+            'message' => 'Total pengeluaran',
+            'total_pengeluaran' => $total
+        ], 200);
+    }
+
 }
  

@@ -195,4 +195,13 @@ public function store(Request $request)
 
         return response()->json($query->get(), 200);
     }
+
+    public function totalTransaksi()
+    {
+        $total = Transaksi::count();
+        return response()->json([
+            'message' => 'Total transaksi',
+            'total_transaksi' => $total
+        ], 200);
+    }
 }
