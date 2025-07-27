@@ -10,6 +10,7 @@ use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\BiayaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -109,3 +110,11 @@ Route::get('/pengeluaran/{id}', [PengeluaranController::class, 'show']);
 Route::put('/pengeluaran/{id}', [PengeluaranController::class, 'update']);
 Route::delete('/pengeluaran/{id}', [PengeluaranController::class, 'destroy']);
 Route::get('/pengeluaran-filter', [PengeluaranController::class, 'filter']);
+
+
+// Biaya
+Route::post('/biaya', [BiayaController::class, 'store']);
+Route::get('/biaya', [BiayaController::class, 'index']);
+Route::get('/biaya/{id}', [BiayaController::class, 'show']);
+Route::put('/biaya/{id}', [BiayaController::class, 'update']);
+Route::delete('/biaya/{id}', [BiayaController::class, 'destroy']);
