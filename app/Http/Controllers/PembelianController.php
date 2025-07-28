@@ -140,7 +140,7 @@ class PembelianController extends Controller
 
     public function totalPembelian()
     {
-        $total = Pembelian::count();
+        $total = Pembelian::sum('harga_beli');
 
         return response()->json([
             'message' => 'Total pembelian',

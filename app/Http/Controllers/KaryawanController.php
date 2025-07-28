@@ -13,7 +13,7 @@ class KaryawanController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id_karyawan'           => 'required|string|size:6|unique:karyawan,id_karyawan',
+            'id_karyawan'           => 'required|string|min:5|unique:karyawan,id_karyawan',
             'nama'                  => 'required|string|max:50',
             'jenis_kelamin'         => 'required|in:L,P',
             'tempat_tanggal_lahir'  => 'required|string|max:50',
@@ -26,23 +26,20 @@ class KaryawanController extends Controller
             'ukuran_baju'           => 'nullable|string|max:5',
             'tanggal_resign'        => 'nullable|date',
             'role'                  => 'required|in:admin,superadmin,teknisi',
-            'password'              => 'required|string|min:6',
         ]);
 
         DB::beginTransaction();
         
         try {
-            // Create karyawan record (without password since it's removed from karyawan table)
             $karyawanData = $validated;
             unset($karyawanData['password']); // Remove password from karyawan data
             
             $karyawan = Karyawan::create($karyawanData);
 
-            // Create user record for authentication
             User::create([
                 'id_karyawan' => $validated['id_karyawan'],
                 'nama' => $validated['nama'],
-                'password' => Hash::make($validated['password']),
+                'password' => Hash::make($validated['id_karyawan']),
                 'role' => $validated['role'],
             ]);
 
@@ -148,10 +145,8 @@ class KaryawanController extends Controller
         DB::beginTransaction();
         
         try {
-            // Delete user first (due to foreign key constraint)
             User::where('id_karyawan', $id)->delete();
             
-            // Delete karyawan
             $karyawan->delete();
 
             DB::commit();
@@ -169,7 +164,6 @@ class KaryawanController extends Controller
 
     public function resetPassword(Request $request, $id)
     {
-        // Find user by id_karyawan
         $user = User::where('id_karyawan', $id)->first();
 
         if (!$user) {
