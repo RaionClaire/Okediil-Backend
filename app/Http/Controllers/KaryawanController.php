@@ -36,6 +36,12 @@ class KaryawanController extends Controller
             
             $karyawan = Karyawan::create($karyawanData);
 
+            if ($validated['tanggal_resign']) {
+                $karyawan->status_karyawan = 'Resigned';
+            } else {
+                $karyawan->status_karyawan = 'Aktif';
+            }
+
             User::create([
                 'id_karyawan' => $validated['id_karyawan'],
                 'nama' => $validated['nama'],
