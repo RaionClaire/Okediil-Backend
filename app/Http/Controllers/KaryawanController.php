@@ -15,7 +15,7 @@ class KaryawanController extends Controller
         $validated = $request->validate([
             'id_karyawan'           => 'required|string|min:5|unique:karyawan,id_karyawan',
             'nama'                  => 'required|string|max:50',
-            'jenis_kelamin'         => 'required|in:L,P',
+            'jenis_kelamin'         => 'required',
             'tempat_tanggal_lahir'  => 'required|string|max:50',
             'alamat'                => 'required|string|max:150',
             'no_hp'                 => 'required|string|max:15',
@@ -92,7 +92,7 @@ class KaryawanController extends Controller
 
         $validated = $request->validate([
             'nama' => 'sometimes|string|max:50',
-            'jenis_kelamin' => 'sometimes|in:L,P',
+            'jenis_kelamin' => 'sometimes|required',
             'tempat_tanggal_lahir' => 'sometimes|string|max:50',
             'alamat' => 'sometimes|string|max:150',
             'no_hp' => 'sometimes|string|max:15',
