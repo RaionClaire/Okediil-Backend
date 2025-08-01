@@ -12,6 +12,7 @@ use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\BiayaController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\CrmController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Rap2hpoutre\LaravelLogViewer\LogViewerController;
@@ -121,3 +122,11 @@ Route::get('/biaya/{id}', [BiayaController::class, 'show']);
 Route::put('/biaya/{id}', [BiayaController::class, 'update']);
 Route::delete('/biaya/{id}', [BiayaController::class, 'destroy']);
 Route::get('/biaya-total', [BiayaController::class, 'totalBiaya']);
+
+// CRM
+Route::post('/crm', [CrmController::class, 'store']);
+Route::get('/crm', [CrmController::class, 'index']);
+Route::get('/crm/{id}', [CrmController::class, 'show']);
+Route::put('/crm/{id}', [CrmController::class, 'update']);
+Route::delete('/crm/{id}', [CrmController::class, 'destroy']);
+Route::get('/crm-search', [CrmController::class, 'search']);
