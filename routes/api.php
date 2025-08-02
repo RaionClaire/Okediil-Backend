@@ -13,9 +13,6 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\BiayaController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\CrmController;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Rap2hpoutre\LaravelLogViewer\LogViewerController;
 use App\Models\User;
 
 Route::get('/', function () {
@@ -130,3 +127,4 @@ Route::get('/crm/{id}', [CrmController::class, 'show']);
 Route::put('/crm/{id}', [CrmController::class, 'update']);
 Route::delete('/crm/{id}', [CrmController::class, 'destroy']);
 Route::get('/crm-search', [CrmController::class, 'search']);
+Route::get('/crm-total', [CrmController::class, 'total']);

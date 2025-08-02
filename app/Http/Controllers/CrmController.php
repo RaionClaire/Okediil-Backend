@@ -111,13 +111,22 @@ class CrmController extends Controller
     {
         $query = $request->input('query');
         $crmEntries = Crm::where('nama', 'like', "%{$query}%")
-            ->orWhere('alamat', 'like', "%{$query}%")
-            ->orWhere('no_hp', 'like', "%{$query}%")
+            ->orWhere('id_crm', 'like', "%{$query}%")
             ->get();
 
         return response()->json([
             'message' => 'Search results',
             'data' => $crmEntries
+        ], 200);
+    }
+
+    public function total()
+    {
+        $totalEntries = Crm::count();
+
+        return response()->json([
+            'message' => 'Total CRM entries',
+            'data' => $totalEntries
         ], 200);
     }
 }
