@@ -45,7 +45,23 @@ class BiayaController extends Controller
         ], 200);
     }
 
-    public function delete($id)
+    public function show($id)
+    {
+        $biaya = Biaya::find($id);
+
+        if (!$biaya) {
+            return response()->json([
+                'message' => 'Biaya tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Detail biaya',
+            'data' => $biaya
+        ], 200);
+    }
+
+    public function destroy($id)
     {
         $biaya = Biaya::find($id);
 
@@ -59,6 +75,32 @@ class BiayaController extends Controller
 
         return response()->json([
             'message' => 'Biaya berhasil dihapus'
+        ], 200);
+    }
+
+    function update(Request $request, $id)
+    {
+        $biaya = Biaya::find($id);
+
+        if (!$biaya) {
+            return response()->json([
+                'message' => 'Biaya tidak ditemukan'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'nama_biaya' => 'required|string|max:50',
+            'biaya' => 'required|numeric',
+            'jenis_biaya' => 'required|string|max:50',
+            'tanggal' => 'required|date',
+            'lokasi' => 'required|string|max:100',
+        ]);
+
+        $biaya->update($validated);
+
+        return response()->json([
+            'message' => 'Biaya berhasil diperbarui',
+            'data' => $biaya
         ], 200);
     }
 }

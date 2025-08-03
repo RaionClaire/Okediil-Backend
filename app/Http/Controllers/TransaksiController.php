@@ -52,6 +52,8 @@ public function store(Request $request)
         'total_biaya' => 'required|numeric',
         'status_transaksi' => 'required|string',
         'teknisi' => 'nullable|string|max:50',
+        'pembelian_ids' => 'nullable|array', // Array of pembelian IDs
+        'pembelian_ids.*' => 'exists:pembelian,id_pembelian',
     ]);
 
     $validated['id_karyawan'] = $user->id_karyawan;
@@ -71,12 +73,32 @@ public function store(Request $request)
         // Buat transaksi
         $transaksi = Transaksi::create($validated);
 
+        // Create cart entries if pembelian_ids are provided
+        if (isset($validated['pembelian_ids']) && is_array($validated['pembelian_ids'])) {
+            foreach ($validated['pembelian_ids'] as $pembelianId) {
+                \App\Models\Cart::create([
+                    'id_transaksi' => $transaksi->id_transaksi,
+                    'id_pembelian' => $pembelianId
+                ]);
+
+                // Update pembelian status to 0 (used)
+                $pembelian = \App\Models\Pembelian::find($pembelianId);
+                if ($pembelian) {
+                    $pembelian->status = 0;
+                    $pembelian->save();
+                }
+            }
+        }
+
         // Update customer counter
         $customer = Customer::find($validated['id_customer']);
         if ($customer) {
             $customer->berapa_kali_servis += 1;
             $customer->save();
         }
+
+        // Load relationships for response
+        $transaksi->load(['customer', 'karyawan', 'cartItems.pembelian']);
 
         return response()->json([
             'message' => 'Transaksi berhasil ditambahkan',
@@ -100,7 +122,7 @@ public function store(Request $request)
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $transaksi = Transaksi::with(['customer', 'karyawan'])->get();
+        $transaksi = Transaksi::with(['customer', 'karyawan', 'cartItems.pembelian'])->get();
         return response()->json($transaksi);
     }
 
@@ -111,7 +133,7 @@ public function store(Request $request)
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $transaksi = Transaksi::with(['customer', 'karyawan'])->find($id);
+        $transaksi = Transaksi::with(['customer', 'karyawan', 'cartItems.pembelian'])->find($id);
         if (!$transaksi) {
             return response()->json(['message' => 'Transaksi tidak ditemukan'], 404);
         }
@@ -146,13 +168,49 @@ public function store(Request $request)
             'kerusakan' => 'nullable|string|max:100',
             'kuantitas' => 'required|integer|min:1',
             'garansi' => 'nullable|integer',
-            'kuantitas' => 'required|integer|min:1',
             'total_biaya' => 'required|numeric',
             'status_transaksi' => 'required|string',
             'teknisi' => 'nullable|string|max:50',
+            'pembelian_ids' => 'nullable|array', // Array of pembelian IDs
+            'pembelian_ids.*' => 'exists:pembelian,id_pembelian',
         ]);
 
+        // Update transaksi
         $transaksi->update($validated);
+
+        // Handle cart items if pembelian_ids provided
+        if (isset($validated['pembelian_ids'])) {
+            // Get current cart items
+            $currentCartItems = \App\Models\Cart::where('id_transaksi', $id)->get();
+            
+            // Reset status of previously used pembelian items
+            foreach ($currentCartItems as $cartItem) {
+                $pembelian = \App\Models\Pembelian::find($cartItem->id_pembelian);
+                if ($pembelian) {
+                    $pembelian->status = 1; // Available again
+                    $pembelian->save();
+                }
+            }
+
+            // Delete old cart items
+            \App\Models\Cart::where('id_transaksi', $id)->delete();
+
+            // Create new cart items
+            foreach ($validated['pembelian_ids'] as $pembelianId) {
+                \App\Models\Cart::create([
+                    'id_transaksi' => $id,
+                    'id_pembelian' => $pembelianId
+                ]);
+
+                // Update pembelian status to 0 (used)
+                $pembelian = \App\Models\Pembelian::find($pembelianId);
+                if ($pembelian) {
+                    $pembelian->status = 0;
+                    $pembelian->save();
+                }
+            }
+        }
+
         return response()->json(['message' => 'Transaksi berhasil diperbarui']);
     }
 
@@ -168,6 +226,20 @@ public function store(Request $request)
             return response()->json(['message' => 'Transaksi tidak ditemukan'], 404);
         }
 
+        // Get current cart items and reset pembelian status
+        $currentCartItems = \App\Models\Cart::where('id_transaksi', $id)->get();
+        foreach ($currentCartItems as $cartItem) {
+            $pembelian = \App\Models\Pembelian::find($cartItem->id_pembelian);
+            if ($pembelian) {
+                $pembelian->status = 1; // Available again
+                $pembelian->save();
+            }
+        }
+
+        // Delete cart items first
+        \App\Models\Cart::where('id_transaksi', $id)->delete();
+
+        // Delete transaksi
         $transaksi->delete();
         return response()->json(['message' => 'Transaksi berhasil dihapus']);
     }
@@ -179,7 +251,7 @@ public function store(Request $request)
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $query = Transaksi::with(['customer', 'karyawan']);
+        $query = Transaksi::with(['customer', 'karyawan', 'cartItems.pembelian']);
 
         if ($request->has('year')) {
             $query->whereYear('tanggal_masuk', $request->year);

@@ -61,6 +61,7 @@ Route::delete('/pembelian/{id}', [PembelianController::class, 'destroy']);
 Route::get('/pembelian-filter', [PembelianController::class, 'filter']);
 Route::get('/pembelian-total', [PembelianController::class, 'totalPembelian']);
 Route::get('/pembelian-total-ongkir', [PembelianController::class, 'totalOngkir']);
+Route::get('/pembelian-available', [PembelianController::class, 'getAvailable']);
 
 // Public Routes - Karyawan
 Route::post('/karyawan', [KaryawanController::class, 'store']);

@@ -30,4 +30,12 @@ public function pembelian() {
     return $this->belongsTo(Pembelian::class, 'id_pembelian', 'id_pembelian');
 }
 
+public function cartItems() {
+    return $this->hasMany(Cart::class, 'id_transaksi', 'id_transaksi');
+}
+
+public function pembelians() {
+    return $this->belongsToMany(Pembelian::class, 'cart', 'id_transaksi', 'id_pembelian');
+}
+
 }
