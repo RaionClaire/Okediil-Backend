@@ -27,4 +27,33 @@ class Customer extends Model
     protected $attributes = [
         'berapa_kali_servis' => 0,
     ];
+
+    // Relationship to transaksi
+    public function transaksi()
+    {
+        return $this->hasMany(Transaksi::class, 'id_customer', 'id_customer');
+    }
+
+    // Dynamic method to get actual service count
+    public function getActualServiceCount()
+    {
+        return $this->transaksi()->count();
+    }
+
+    // Accessor to always return the real count
+    public function getBerapaKaliServisAttribute()
+    {
+        return $this->transaksi()->count();
+    }
+
+    // Static method to sync all customer service counts (if you want to update the database field)
+    public static function syncAllServiceCounts()
+    {
+        self::chunk(100, function ($customers) {
+            foreach ($customers as $customer) {
+                $actualCount = $customer->transaksi()->count();
+                $customer->update(['berapa_kali_servis' => $actualCount]);
+            }
+        });
+    }
 }

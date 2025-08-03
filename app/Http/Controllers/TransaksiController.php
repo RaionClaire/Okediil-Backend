@@ -90,12 +90,8 @@ public function store(Request $request)
             }
         }
 
-        // Update customer counter
-        $customer = Customer::find($validated['id_customer']);
-        if ($customer) {
-            $customer->berapa_kali_servis += 1;
-            $customer->save();
-        }
+        // Note: berapa_kali_servis is now calculated dynamically in Customer model
+        // No need to manually increment the counter
 
         // Load relationships for response
         $transaksi->load(['customer', 'karyawan', 'cartItems.pembelian']);
@@ -275,5 +271,55 @@ public function store(Request $request)
             'message' => 'Total transaksi',
             'total_transaksi' => $total
         ], 200);
+    }
+
+    public function syncCustomerServiceCounts()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        try {
+            Customer::syncAllServiceCounts();
+            return response()->json([
+                'message' => 'Customer service counts synchronized successfully'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error synchronizing customer service counts',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getCustomerServiceCounts()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        try {
+            $customers = Customer::with('transaksi')->get()->map(function ($customer) {
+                return [
+                    'id_customer' => $customer->id_customer,
+                    'nama' => $customer->nama,
+                    'stored_count' => $customer->getOriginal('berapa_kali_servis') ?? 0,
+                    'actual_count' => $customer->getActualServiceCount(),
+                    'dynamic_count' => $customer->berapa_kali_servis, // Uses accessor
+                ];
+            });
+
+            return response()->json([
+                'message' => 'Customer service counts retrieved successfully',
+                'data' => $customers
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error retrieving customer service counts',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

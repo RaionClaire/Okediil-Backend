@@ -42,6 +42,8 @@ Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
 Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
 Route::get('/transaksi-filter', [TransaksiController::class, 'filter']);
 Route::get('/transaksi-total', [TransaksiController::class, 'totalTransaksi']);
+Route::post('/sync-customer-service-counts', [TransaksiController::class, 'syncCustomerServiceCounts']);
+Route::get('/customer-service-counts', [TransaksiController::class, 'getCustomerServiceCounts']);
 
 // Public Routes - Cart
 Route::post('/cart', [CartController::class, 'store']);
