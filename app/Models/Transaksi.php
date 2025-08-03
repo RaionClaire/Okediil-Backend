@@ -14,7 +14,7 @@ public $incrementing = true;
 protected $fillable = [
     'id_customer', 'id_karyawan', 'servis_layanan', 'merk', 'tipe', 'warna',
     'tanggal_masuk', 'tanggal_keluar', 'tambahan', 'catatan', 'keluhan',
-    'kelengkapan', 'pin', 'kerusakan', 'id_pembelian', 'kuantitas',
+    'kelengkapan', 'pin', 'kerusakan', 'kuantitas',
     'garansi', 'total_biaya', 'status_transaksi', 'teknisi'
 ];
 
@@ -26,16 +26,21 @@ public function karyawan() {
     return $this->belongsTo(Karyawan::class, 'id_karyawan', 'id_karyawan');
 }
 
-public function pembelian() {
-    return $this->belongsTo(Pembelian::class, 'id_pembelian', 'id_pembelian');
-}
-
+// Relationship through cart table to get multiple pembelian items
 public function cartItems() {
     return $this->hasMany(Cart::class, 'id_transaksi', 'id_transaksi');
 }
 
-public function pembelians() {
-    return $this->belongsToMany(Pembelian::class, 'cart', 'id_transaksi', 'id_pembelian');
+// Get pembelian items through cart
+public function pembelianItems() {
+    return $this->hasManyThrough(
+        Pembelian::class, 
+        Cart::class, 
+        'id_transaksi', // Foreign key on cart table
+        'id_pembelian', // Foreign key on pembelian table
+        'id_transaksi', // Local key on transaksi table
+        'id_pembelian'  // Local key on cart table
+    );
 }
 
 }

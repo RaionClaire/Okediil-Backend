@@ -153,17 +153,16 @@ class PembelianController extends Controller
         $totalOngkir = Pembelian::sum('ongkir');
 
         return response()->json([
-            'message' => 'Total ongkir pembelian',
             'data' => ['total_ongkir' => $totalOngkir]
         ], 200);
     }
 
-    public function getAvailable()
+    public function available()
     {
         $availablePembelian = Pembelian::where('status', 1)->get();
 
         return response()->json([
-            'message' => 'Daftar pembelian yang tersedia',
+            'message' => 'Daftar pembelian tersedia',
             'data' => $availablePembelian
         ], 200);
     }

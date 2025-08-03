@@ -16,13 +16,13 @@ class Cart extends Model
         'id_pembelian',
     ];
 
-    public function transaksi()
-    {
+    // Relationship to Transaksi
+    public function transaksi() {
         return $this->belongsTo(Transaksi::class, 'id_transaksi', 'id_transaksi');
     }
 
-    public function pembelian()
-    {
+    // Relationship to Pembelian
+    public function pembelian() {
         return $this->belongsTo(Pembelian::class, 'id_pembelian', 'id_pembelian');
     }
 }

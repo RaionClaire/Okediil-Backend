@@ -26,14 +26,4 @@ class Pembelian extends Model
         'metode_pembayaran',
         'status'
     ];
-
-    public function cartItems()
-    {
-        return $this->hasMany(Cart::class, 'id_pembelian', 'id_pembelian');
-    }
-
-    public function transaksis()
-    {
-        return $this->belongsToMany(Transaksi::class, 'cart', 'id_pembelian', 'id_transaksi');
-    }
 }

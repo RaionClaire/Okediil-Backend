@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Transaksi;
 use App\Models\Customer;
+use App\Models\Cart;
 
 class TransaksiController extends Controller
 {
@@ -52,8 +53,8 @@ public function store(Request $request)
         'total_biaya' => 'required|numeric',
         'status_transaksi' => 'required|string',
         'teknisi' => 'nullable|string|max:50',
-        'pembelian_ids' => 'nullable|array', // Array of pembelian IDs
-        'pembelian_ids.*' => 'exists:pembelian,id_pembelian',
+        'pembelian_items' => 'required|array|min:1',
+        'pembelian_items.*' => 'required|exists:pembelian,id_pembelian',
     ]);
 
     $validated['id_karyawan'] = $user->id_karyawan;
@@ -70,31 +71,39 @@ public function store(Request $request)
     }
 
     try {
-        // Buat transaksi
-        $transaksi = Transaksi::create($validated);
+        DB::beginTransaction();
 
-        // Create cart entries if pembelian_ids are provided
-        if (isset($validated['pembelian_ids']) && is_array($validated['pembelian_ids'])) {
-            foreach ($validated['pembelian_ids'] as $pembelianId) {
-                \App\Models\Cart::create([
-                    'id_transaksi' => $transaksi->id_transaksi,
-                    'id_pembelian' => $pembelianId
-                ]);
+        // Create transaksi (remove pembelian_items from the data)
+        $transaksiData = $validated;
+        unset($transaksiData['pembelian_items']);
+        $transaksi = Transaksi::create($transaksiData);
 
-                // Update pembelian status to 0 (used)
-                $pembelian = \App\Models\Pembelian::find($pembelianId);
-                if ($pembelian) {
-                    $pembelian->status = 0;
-                    $pembelian->save();
-                }
+        // Create cart entries for each pembelian item
+        foreach ($validated['pembelian_items'] as $pembelianId) {
+            Cart::create([
+                'id_transaksi' => $transaksi->id_transaksi,
+                'id_pembelian' => $pembelianId,
+            ]);
+
+            // Update pembelian status to used (0)
+            $pembelian = \App\Models\Pembelian::find($pembelianId);
+            if ($pembelian) {
+                $pembelian->status = 0;
+                $pembelian->save();
             }
         }
 
-        // Note: berapa_kali_servis is now calculated dynamically in Customer model
-        // No need to manually increment the counter
+        // Update customer counter
+        $customer = Customer::find($validated['id_customer']);
+        if ($customer) {
+            $customer->berapa_kali_servis += 1;
+            $customer->save();
+        }
 
-        // Load relationships for response
-        $transaksi->load(['customer', 'karyawan', 'cartItems.pembelian']);
+        DB::commit();
+
+        // Load the complete transaction with relationships
+        $transaksi = Transaksi::with(['customer', 'karyawan', 'cartItems.pembelian'])->find($transaksi->id_transaksi);
 
         return response()->json([
             'message' => 'Transaksi berhasil ditambahkan',
@@ -104,6 +113,7 @@ public function store(Request $request)
         ], 201);
 
     } catch (\Exception $e) {
+        DB::rollback();
         return response()->json([
             'message' => 'Terjadi kesalahan',
             'error' => $e->getMessage()
@@ -149,12 +159,12 @@ public function store(Request $request)
         }
 
         $validated = $request->validate([
-            'id_customer' => 'required|exists:customers,id_customer',
-            'servis_layanan' => 'required|string',
-            'merk' => 'required|string',
-            'tipe' => 'required|string',
-            'warna' => 'required|string',
-            'tanggal_masuk' => 'required|date',
+            'id_customer' => 'sometimes|required|exists:customers,id_customer',
+            'servis_layanan' => 'sometimes|required|string',
+            'merk' => 'sometimes|required|string',
+            'tipe' => 'sometimes|required|string',
+            'warna' => 'sometimes|required|string',
+            'tanggal_masuk' => 'sometimes|required|date',
             'tanggal_keluar' => 'nullable|date',
             'tambahan' => 'nullable|string|max:1000',
             'catatan' => 'nullable|string|max:1000',
@@ -162,52 +172,71 @@ public function store(Request $request)
             'kelengkapan' => 'nullable|string|max:100',
             'pin' => 'nullable|string|max:100',
             'kerusakan' => 'nullable|string|max:100',
-            'kuantitas' => 'required|integer|min:1',
+            'kuantitas' => 'sometimes|required|integer|min:1',
             'garansi' => 'nullable|integer',
-            'total_biaya' => 'required|numeric',
-            'status_transaksi' => 'required|string',
+            'total_biaya' => 'sometimes|required|numeric',
+            'status_transaksi' => 'sometimes|required|string',
             'teknisi' => 'nullable|string|max:50',
-            'pembelian_ids' => 'nullable|array', // Array of pembelian IDs
-            'pembelian_ids.*' => 'exists:pembelian,id_pembelian',
+            'pembelian_items' => 'sometimes|array',
+            'pembelian_items.*' => 'required_with:pembelian_items|exists:pembelian,id_pembelian',
         ]);
 
-        // Update transaksi
-        $transaksi->update($validated);
+        try {
+            DB::beginTransaction();
 
-        // Handle cart items if pembelian_ids provided
-        if (isset($validated['pembelian_ids'])) {
-            // Get current cart items
-            $currentCartItems = \App\Models\Cart::where('id_transaksi', $id)->get();
-            
-            // Reset status of previously used pembelian items
-            foreach ($currentCartItems as $cartItem) {
-                $pembelian = \App\Models\Pembelian::find($cartItem->id_pembelian);
-                if ($pembelian) {
-                    $pembelian->status = 1; // Available again
-                    $pembelian->save();
+            // Update transaksi (remove pembelian_items from the data)
+            $transaksiData = $validated;
+            unset($transaksiData['pembelian_items']);
+            $transaksi->update($transaksiData);
+
+            // If pembelian_items is provided, update cart entries
+            if (isset($validated['pembelian_items'])) {
+                // First, set previous pembelian items back to available (status = 1)
+                $existingCartItems = Cart::where('id_transaksi', $id)->get();
+                foreach ($existingCartItems as $cartItem) {
+                    $pembelian = \App\Models\Pembelian::find($cartItem->id_pembelian);
+                    if ($pembelian) {
+                        $pembelian->status = 1;
+                        $pembelian->save();
+                    }
+                }
+
+                // Delete existing cart entries
+                Cart::where('id_transaksi', $id)->delete();
+
+                // Create new cart entries
+                foreach ($validated['pembelian_items'] as $pembelianId) {
+                    Cart::create([
+                        'id_transaksi' => $id,
+                        'id_pembelian' => $pembelianId,
+                    ]);
+
+                    // Update pembelian status to used (0)
+                    $pembelian = \App\Models\Pembelian::find($pembelianId);
+                    if ($pembelian) {
+                        $pembelian->status = 0;
+                        $pembelian->save();
+                    }
                 }
             }
 
-            // Delete old cart items
-            \App\Models\Cart::where('id_transaksi', $id)->delete();
+            DB::commit();
 
-            // Create new cart items
-            foreach ($validated['pembelian_ids'] as $pembelianId) {
-                \App\Models\Cart::create([
-                    'id_transaksi' => $id,
-                    'id_pembelian' => $pembelianId
-                ]);
+            // Load the updated transaction with relationships
+            $transaksi = Transaksi::with(['customer', 'karyawan', 'cartItems.pembelian'])->find($id);
 
-                // Update pembelian status to 0 (used)
-                $pembelian = \App\Models\Pembelian::find($pembelianId);
-                if ($pembelian) {
-                    $pembelian->status = 0;
-                    $pembelian->save();
-                }
-            }
+            return response()->json([
+                'message' => 'Transaksi berhasil diperbarui',
+                'data' => $transaksi
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'message' => 'Terjadi kesalahan',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json(['message' => 'Transaksi berhasil diperbarui']);
     }
 
     public function destroy($id) 
@@ -222,22 +251,36 @@ public function store(Request $request)
             return response()->json(['message' => 'Transaksi tidak ditemukan'], 404);
         }
 
-        // Get current cart items and reset pembelian status
-        $currentCartItems = \App\Models\Cart::where('id_transaksi', $id)->get();
-        foreach ($currentCartItems as $cartItem) {
-            $pembelian = \App\Models\Pembelian::find($cartItem->id_pembelian);
-            if ($pembelian) {
-                $pembelian->status = 1; // Available again
-                $pembelian->save();
+        try {
+            DB::beginTransaction();
+
+            // Set pembelian items back to available (status = 1) before deleting
+            $cartItems = Cart::where('id_transaksi', $id)->get();
+            foreach ($cartItems as $cartItem) {
+                $pembelian = \App\Models\Pembelian::find($cartItem->id_pembelian);
+                if ($pembelian) {
+                    $pembelian->status = 1;
+                    $pembelian->save();
+                }
             }
+
+            // Delete cart entries
+            Cart::where('id_transaksi', $id)->delete();
+
+            // Delete transaksi
+            $transaksi->delete();
+
+            DB::commit();
+
+            return response()->json(['message' => 'Transaksi berhasil dihapus']);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'message' => 'Terjadi kesalahan',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        // Delete cart items first
-        \App\Models\Cart::where('id_transaksi', $id)->delete();
-
-        // Delete transaksi
-        $transaksi->delete();
-        return response()->json(['message' => 'Transaksi berhasil dihapus']);
     }
 
     public function filter(Request $request)
@@ -271,55 +314,5 @@ public function store(Request $request)
             'message' => 'Total transaksi',
             'total_transaksi' => $total
         ], 200);
-    }
-
-    public function syncCustomerServiceCounts()
-    {
-        $user = Auth::user();
-        if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
-        try {
-            Customer::syncAllServiceCounts();
-            return response()->json([
-                'message' => 'Customer service counts synchronized successfully'
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error synchronizing customer service counts',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function getCustomerServiceCounts()
-    {
-        $user = Auth::user();
-        if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
-        try {
-            $customers = Customer::with('transaksi')->get()->map(function ($customer) {
-                return [
-                    'id_customer' => $customer->id_customer,
-                    'nama' => $customer->nama,
-                    'stored_count' => $customer->getOriginal('berapa_kali_servis') ?? 0,
-                    'actual_count' => $customer->getActualServiceCount(),
-                    'dynamic_count' => $customer->berapa_kali_servis, // Uses accessor
-                ];
-            });
-
-            return response()->json([
-                'message' => 'Customer service counts retrieved successfully',
-                'data' => $customers
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error retrieving customer service counts',
-                'error' => $e->getMessage()
-            ], 500);
-        }
     }
 }

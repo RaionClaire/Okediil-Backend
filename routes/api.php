@@ -42,8 +42,6 @@ Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
 Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
 Route::get('/transaksi-filter', [TransaksiController::class, 'filter']);
 Route::get('/transaksi-total', [TransaksiController::class, 'totalTransaksi']);
-Route::post('/sync-customer-service-counts', [TransaksiController::class, 'syncCustomerServiceCounts']);
-Route::get('/customer-service-counts', [TransaksiController::class, 'getCustomerServiceCounts']);
 
 // Public Routes - Cart
 Route::post('/cart', [CartController::class, 'store']);
@@ -63,7 +61,7 @@ Route::delete('/pembelian/{id}', [PembelianController::class, 'destroy']);
 Route::get('/pembelian-filter', [PembelianController::class, 'filter']);
 Route::get('/pembelian-total', [PembelianController::class, 'totalPembelian']);
 Route::get('/pembelian-total-ongkir', [PembelianController::class, 'totalOngkir']);
-Route::get('/pembelian-available', [PembelianController::class, 'getAvailable']);
+Route::get('/pembelian-available', [PembelianController::class, 'available']);
 
 // Public Routes - Karyawan
 Route::post('/karyawan', [KaryawanController::class, 'store']);
