@@ -27,7 +27,12 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    
+    // Karyawan routes with authentication
     Route::apiResource('/karyawan', KaryawanController::class);
+    Route::put('/karyawan/{id}/reset-password', [KaryawanController::class, 'resetPassword']);
+    Route::get('/karyawan-filter', [KaryawanController::class, 'filter']);
+    Route::get('/karyawan-total', [KaryawanController::class, 'totalKaryawan']);
 });
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -63,15 +68,12 @@ Route::get('/pembelian-total', [PembelianController::class, 'totalPembelian']);
 Route::get('/pembelian-total-ongkir', [PembelianController::class, 'totalOngkir']);
 Route::get('/pembelian-available', [PembelianController::class, 'available']);
 
-// Public Routes - Karyawan
-Route::post('/karyawan', [KaryawanController::class, 'store']);
-Route::get('/karyawan', [KaryawanController::class, 'index']);
-Route::get('/karyawan/{id}', [KaryawanController::class, 'show']);
-Route::put('/karyawan/{id}', [KaryawanController::class, 'update']);
-Route::delete('/karyawan/{id}', [KaryawanController::class, 'destroy']);
-Route::put('/karyawan/{id}/reset-password', [KaryawanController::class, 'resetPassword']);
-Route::get('/karyawan-filter', [KaryawanController::class, 'filter']);
-Route::get('/karyawan-total', [KaryawanController::class, 'totalKaryawan']);
+// Routes handled by apiResource above are:
+// GET /karyawan (index)
+// POST /karyawan (store) 
+// GET /karyawan/{id} (show)
+// PUT /karyawan/{id} (update)
+// DELETE /karyawan/{id} (destroy)
 
 // Public Routes - Customer
 Route::post('/customer', [CustomerController::class, 'store']);
