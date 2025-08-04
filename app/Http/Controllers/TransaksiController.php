@@ -128,7 +128,14 @@ public function store(Request $request)
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $transaksi = Transaksi::with(['customer', 'karyawan', 'cartItems.pembelian'])->get();
+        $query = Transaksi::with(['customer', 'karyawan', 'cartItems.pembelian']);
+        
+        // If user is teknisi, only show transactions assigned to them
+        if ($user->role === 'teknisi') {
+            $query->where('teknisi', $user->id_karyawan);
+        }
+        
+        $transaksi = $query->get();
         return response()->json($transaksi);
     }
 
@@ -144,6 +151,43 @@ public function store(Request $request)
             return response()->json(['message' => 'Transaksi tidak ditemukan'], 404);
         }
         return response()->json($transaksi);
+    }
+
+    public function updateStatus(Request $request, $id) 
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $transaksi = Transaksi::find($id);
+        if (!$transaksi) {
+            return response()->json(['message' => 'Transaksi tidak ditemukan'], 404);
+        }
+
+        // If user is teknisi, only allow them to update their assigned transactions
+        if ($user->role === 'teknisi' && $transaksi->teknisi !== $user->id_karyawan) {
+            return response()->json(['message' => 'Anda tidak memiliki akses untuk mengupdate transaksi ini'], 403);
+        }
+
+        $validated = $request->validate([
+            'status_transaksi' => 'required|string|in:Diagnosis,Proses,Pengujian,Selesai,Sudah diambil',
+        ]);
+
+        try {
+            $transaksi->update($validated);
+
+            return response()->json([
+                'message' => 'Status transaksi berhasil diperbarui',
+                'data' => $transaksi
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function update(Request $request, $id) 

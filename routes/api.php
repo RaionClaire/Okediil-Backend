@@ -44,6 +44,7 @@ Route::get('/transaksi', [TransaksiController::class, 'index']);
 Route::post('/transaksi', [TransaksiController::class, 'store']);
 Route::get('/transaksi/{id}', [TransaksiController::class, 'show']);
 Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
+Route::put('/transaksi/{id}/status', [TransaksiController::class, 'updateStatus']); // New route for status only updates
 Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
 Route::get('/transaksi-filter', [TransaksiController::class, 'filter']);
 Route::get('/transaksi-total', [TransaksiController::class, 'totalTransaksi']);

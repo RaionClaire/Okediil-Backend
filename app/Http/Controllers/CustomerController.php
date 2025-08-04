@@ -21,7 +21,7 @@ class CustomerController extends Controller
         ]);
 
         $no_hp = preg_replace('/\D/', '', $request -> no_hp);
-        $id_customer = substr($no_hp, -6);
+        $id_customer = $no_hp;
         $customer = Customer::create([
             'id_customer' => $id_customer,
             'nama' => $validated['nama'],
