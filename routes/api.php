@@ -24,6 +24,14 @@ Route::get('log-viewers', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::cl
 // Newest Auth Routes
 Route::post('/login', [AuthController::class, 'login']);
 
+// Public Routes - Transaction Tracking (for customers)
+Route::post('/transaksi-track', [TransaksiController::class, 'trackByPhone'])
+    ->middleware('throttle:10,1'); // 10 requests per minute
+
+// Alias for backward compatibility
+Route::post('/track-by-phone', [TransaksiController::class, 'trackByPhone'])
+    ->middleware('throttle:10,1');
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
@@ -31,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Karyawan routes with authentication
     Route::apiResource('/karyawan', KaryawanController::class);
     Route::put('/karyawan/{id}/reset-password', [KaryawanController::class, 'resetPassword']);
+    Route::put('/change-password', [KaryawanController::class, 'changePassword']);
     Route::get('/karyawan-filter', [KaryawanController::class, 'filter']);
     Route::get('/karyawan-total', [KaryawanController::class, 'totalKaryawan']);
 });
@@ -44,7 +53,9 @@ Route::get('/transaksi', [TransaksiController::class, 'index']);
 Route::post('/transaksi', [TransaksiController::class, 'store']);
 Route::get('/transaksi/{id}', [TransaksiController::class, 'show']);
 Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
-Route::put('/transaksi/{id}/status', [TransaksiController::class, 'updateStatus']); // New route for status only updates
+Route::put('/transaksi/{id}/status', [TransaksiController::class, 'updateStatus']); 
+Route::put('/transaksi/{id}/status-with-notes', [TransaksiController::class, 'updateStatusWithNotes']); 
+Route::get('/transaksi/{id}/status-history', [TransaksiController::class, 'getStatusHistory']);
 Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
 Route::get('/transaksi-filter', [TransaksiController::class, 'filter']);
 Route::get('/transaksi-total', [TransaksiController::class, 'totalTransaksi']);

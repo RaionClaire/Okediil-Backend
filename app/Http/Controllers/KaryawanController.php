@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class KaryawanController extends Controller
 {
@@ -171,6 +172,15 @@ class KaryawanController extends Controller
 
     public function resetPassword(Request $request, $id)
     {
+        $currentUser = Auth::guard('sanctum')->user();
+        
+        // Only superadmin can reset passwords
+        if (!$currentUser || $currentUser->role !== 'superadmin') {
+            return response()->json([
+                'message' => 'Unauthorized. Only superadmin can reset passwords.'
+            ], 403);
+        }
+
         $user = User::where('id_karyawan', $id)->first();
 
         if (!$user) {
@@ -178,13 +188,78 @@ class KaryawanController extends Controller
         }
 
         $request->validate([
-            'new_password' => 'required|min:6'
+            'reset_type' => 'required|in:default,random',
+            'new_password' => 'required_if:reset_type,manual|min:6'
         ]);
 
+        $newPassword = '';
+        
+        if ($request->reset_type === 'default') {
+            // Reset to default (id_karyawan)
+            $newPassword = $id;
+        } elseif ($request->reset_type === 'random') {
+            // Generate random password
+            $newPassword = $this->generateRandomPassword();
+        } else {
+            $newPassword = $request->new_password;
+        }
+
+        $user->password = Hash::make($newPassword);
+        $user->save();
+
+        return response()->json([
+            'message' => 'Password reset successful',
+            'new_password' => $newPassword // Return the new password for superadmin to give to user
+        ]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $currentUser = Auth::guard('sanctum')->user();
+        
+        if (!$currentUser) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $request->validate([
+            'old_password' => 'required',
+            'new_password' => 'required|min:6',
+            'new_password_confirmation' => 'required|same:new_password'
+        ]);
+
+        // Get the user from the User model using id_karyawan
+        $user = User::where('id_karyawan', $currentUser->id_karyawan)->first();
+        
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // Verify current password
+        if (!Hash::check($request->old_password, $user->password)) {
+            return response()->json([
+                'message' => 'Password lama tidak sesuai'
+            ], 400);
+        }
+
+        // Update password
         $user->password = Hash::make($request->new_password);
         $user->save();
 
-        return response()->json(['message' => 'Password reset successful']);
+        return response()->json([
+            'message' => 'Password berhasil diubah'
+        ]);
+    }
+
+    private function generateRandomPassword($length = 8)
+    {
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $password = '';
+        
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $characters[rand(0, strlen($characters) - 1)];
+        }
+        
+        return $password;
     }
 
     public function filter(Request $request)

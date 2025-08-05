@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 use App\Models\Transaksi;
 use App\Models\Customer;
 use App\Models\Cart;
+use App\Models\TransaksiStatusHistory;
 
 class TransaksiController extends Controller
 {
@@ -53,8 +56,8 @@ public function store(Request $request)
         'total_biaya' => 'required|numeric',
         'status_transaksi' => 'required|string',
         'teknisi' => 'nullable|string|max:50',
-        'pembelian_items' => 'required|array|min:1',
-        'pembelian_items.*' => 'required|exists:pembelian,id_pembelian',
+        'pembelian_items' => 'nullable|array',
+        'pembelian_items.*' => 'required_with:pembelian_items|exists:pembelian,id_pembelian',
     ]);
 
     $validated['id_karyawan'] = $user->id_karyawan;
@@ -78,18 +81,20 @@ public function store(Request $request)
         unset($transaksiData['pembelian_items']);
         $transaksi = Transaksi::create($transaksiData);
 
-        // Create cart entries for each pembelian item
-        foreach ($validated['pembelian_items'] as $pembelianId) {
-            Cart::create([
-                'id_transaksi' => $transaksi->id_transaksi,
-                'id_pembelian' => $pembelianId,
-            ]);
+        // Create cart entries for each pembelian item (only if items are provided)
+        if (isset($validated['pembelian_items']) && !empty($validated['pembelian_items'])) {
+            foreach ($validated['pembelian_items'] as $pembelianId) {
+                Cart::create([
+                    'id_transaksi' => $transaksi->id_transaksi,
+                    'id_pembelian' => $pembelianId,
+                ]);
 
-            // Update pembelian status to used (0)
-            $pembelian = \App\Models\Pembelian::find($pembelianId);
-            if ($pembelian) {
-                $pembelian->status = 0;
-                $pembelian->save();
+                // Update pembelian status to used (0)
+                $pembelian = \App\Models\Pembelian::find($pembelianId);
+                if ($pembelian) {
+                    $pembelian->status = 0;
+                    $pembelian->save();
+                }
             }
         }
 
@@ -171,7 +176,7 @@ public function store(Request $request)
         }
 
         $validated = $request->validate([
-            'status_transaksi' => 'required|string|in:Diagnosis,Proses,Pengujian,Selesai,Sudah diambil',
+            'status_transaksi' => 'required|string|in:pending,Diagnosa,Proses,Pengujian,Siap Diambil,Sudah Diambil,Gagal,Dibatalkan,completed,cancelled',
         ]);
 
         try {
@@ -311,6 +316,13 @@ public function store(Request $request)
             // Delete cart entries
             Cart::where('id_transaksi', $id)->delete();
 
+            // Decrease customer service count before deleting transaction
+            $customer = Customer::find($transaksi->id_customer);
+            if ($customer && $customer->berapa_kali_servis > 0) {
+                $customer->berapa_kali_servis -= 1;
+                $customer->save();
+            }
+
             // Delete transaksi
             $transaksi->delete();
 
@@ -349,6 +361,266 @@ public function store(Request $request)
         }
 
         return response()->json($query->get(), 200);
+    }
+
+    public function trackByPhone(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|string|min:10|max:15'
+        ]);
+
+        $phone = $request->phone;
+        
+        // Additional security: Remove any special characters except + and numbers
+        $normalizedPhone = preg_replace('/[^0-9+]/', '', $phone);
+        
+        // Validate phone number format (Indonesian numbers only)
+        if (!preg_match('/^(\+?628|08)[0-9]{8,11}$/', $normalizedPhone)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Format nomor telepon tidak valid. Gunakan format Indonesia (08xxx atau 628xxx)',
+                'data' => []
+            ], 400);
+        }
+
+        // Create different possible formats for searching
+        $phoneFormats = [];
+        
+        // If starts with 08, add 628 version
+        if (substr($normalizedPhone, 0, 2) === '08') {
+            $phoneFormats[] = $normalizedPhone; // Original 08xxx
+            $phoneFormats[] = '628' . substr($normalizedPhone, 2); // Convert to 628xxx
+            $phoneFormats[] = '+628' . substr($normalizedPhone, 2); // Convert to +628xxx
+        }
+        // If starts with 628, add 08 version
+        elseif (substr($normalizedPhone, 0, 3) === '628') {
+            $phoneFormats[] = $normalizedPhone; // Original 628xxx
+            $phoneFormats[] = '08' . substr($normalizedPhone, 3); // Convert to 08xxx
+            $phoneFormats[] = '+' . $normalizedPhone; // Add + prefix
+        }
+        // If starts with +628, add other versions
+        elseif (substr($normalizedPhone, 0, 4) === '628' && substr($phone, 0, 1) === '+') {
+            $phoneFormats[] = $normalizedPhone; // Without +
+            $phoneFormats[] = '+' . $normalizedPhone; // With +
+            $phoneFormats[] = '08' . substr($normalizedPhone, 3); // Convert to 08xxx
+        }
+        else {
+            // For other formats, just use as is
+            $phoneFormats[] = $normalizedPhone;
+        }
+
+        try {
+            // Search for customers with matching phone numbers
+            $customers = Customer::whereIn('no_hp', $phoneFormats)->get();
+            
+            if ($customers->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ditemukan customer dengan nomor telepon tersebut',
+                    'data' => []
+                ], 404);
+            }
+
+            // Get customer IDs
+            $customerIds = $customers->pluck('id_customer');
+
+            // Find transactions for these customers - only show recent 2 months and limited info for security
+            $twoMonthsAgo = now()->subMonths(2);
+            
+            $transactions = Transaksi::with([
+                'customer:id_customer,nama,no_hp',
+                'latestStatusChange:id_transaksi,changed_at,changed_by',
+                'statusHistory:id_transaksi,status_lama,status_baru,changed_at,catatan_perubahan'
+            ])
+                ->whereIn('id_customer', $customerIds)
+                ->where('created_at', '>=', $twoMonthsAgo) // Only recent 2 months
+                ->select([
+                    'id_transaksi',
+                    'id_customer', 
+                    'servis_layanan',
+                    'merk',
+                    'tipe',
+                    'warna',
+                    'tanggal_masuk',
+                    'tanggal_keluar',
+                    'status_transaksi',
+                    'garansi',
+                    'keluhan',
+                    'kerusakan',
+                    'teknisi',
+                    'total_biaya',
+                    'created_at',
+                    'updated_at'
+                ])
+                ->orderBy('created_at', 'desc') // Most recent first
+                ->get();
+
+            // Add estimated completion days for each transaction
+            $transactions = $transactions->map(function ($transaction) {
+                $estimatedDays = null;
+                $daysRemaining = null;
+                
+                // Check if repair is finished or has special status
+                if (in_array($transaction->status_transaksi, ['Siap Diambil', 'Sudah Diambil', 'completed'])) {
+                    $estimatedDays = 'SELESAI';
+                    $daysRemaining = 0;
+                } elseif ($transaction->status_transaksi === 'Gagal') {
+                    $estimatedDays = 'Gagal, silahkan diambil';
+                    $daysRemaining = 0;
+                } elseif ($transaction->status_transaksi === 'Dibatalkan') {
+                    $estimatedDays = 'Dibatalkan, silahkan diambil';
+                    $daysRemaining = 0;
+                } elseif ($transaction->tanggal_keluar) {
+                    // Calculate days until completion for ongoing repairs
+                    $keluarDate = Carbon::parse($transaction->tanggal_keluar);
+                    $today = Carbon::now()->startOfDay();
+                    $daysRemaining = $today->diffInDays($keluarDate, false); // false = can be negative
+                    
+                    if ($daysRemaining > 0) {
+                        $estimatedDays = $daysRemaining . ' hari lagi';
+                    } elseif ($daysRemaining == 0) {
+                        $estimatedDays = 'Hari ini';
+                    } else {
+                        $estimatedDays = 'Terlambat ' . abs($daysRemaining) . ' hari';
+                    }
+                } else {
+                    $estimatedDays = 'Belum ditentukan';
+                }
+                
+                $transaction->estimated_completion = $estimatedDays;
+                $transaction->days_remaining = $daysRemaining;
+                
+                // Add last status change timestamp
+                if ($transaction->latestStatusChange) {
+                    $transaction->last_status_changed = $transaction->latestStatusChange->changed_at;
+                } else {
+                    $transaction->last_status_changed = $transaction->updated_at;
+                }
+                
+                return $transaction;
+            });
+
+            if ($transactions->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer ditemukan, tetapi belum memiliki transaksi',
+                    'data' => [
+                        'customers' => $customers->makeHidden(['email', 'alamat', 'jenis_kelamin', 'status_pekerjaan', 'sumber', 'media_sosial']),
+                        'transactions' => []
+                    ]
+                ], 200);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Transaksi ditemukan',
+                'data' => [
+                    'customers' => $customers->makeHidden(['email', 'alamat', 'jenis_kelamin', 'status_pekerjaan', 'sumber', 'media_sosial']),
+                    'transactions' => $transactions
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            // Log error but don't expose internal details
+            Log::error('Transaction tracking error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan sistem. Silakan coba lagi nanti.',
+                'data' => []
+            ], 500);
+        }
+    }
+
+    // Method to update status with custom notes
+    public function updateStatusWithNotes(Request $request, $id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $transaksi = Transaksi::find($id);
+        if (!$transaksi) {
+            return response()->json(['message' => 'Transaksi tidak ditemukan'], 404);
+        }
+
+        $validated = $request->validate([
+            'status_transaksi' => 'required|string|in:pending,in_progress,completed,cancelled,Diagnosa,Proses,Pengujian,Siap Diambil,Sudah Diambil,Gagal,Dibatalkan',
+            'catatan_perubahan' => 'nullable|string|max:500'
+        ]);
+
+        try {
+            $oldStatus = $transaksi->status_transaksi;
+            $newStatus = $validated['status_transaksi'];
+
+            // Update status
+            $transaksi->status_transaksi = $newStatus;
+            $transaksi->save();
+
+            // The model event will automatically create the history record,
+            // but we can add custom notes if provided
+            if (isset($validated['catatan_perubahan']) && !empty($validated['catatan_perubahan'])) {
+                // Update the latest history record with custom notes
+                $latestHistory = TransaksiStatusHistory::where('id_transaksi', $id)
+                    ->orderBy('changed_at', 'desc')
+                    ->first();
+                
+                if ($latestHistory) {
+                    $latestHistory->catatan_perubahan = $validated['catatan_perubahan'];
+                    $latestHistory->save();
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status berhasil diubah dari "' . $oldStatus . '" ke "' . $newStatus . '"',
+                'data' => [
+                    'transaksi' => $transaksi,
+                    'status_change' => [
+                        'from' => $oldStatus,
+                        'to' => $newStatus,
+                        'changed_at' => now(),
+                        'changed_by' => $user->id_karyawan,
+                        'notes' => $validated['catatan_perubahan'] ?? null
+                    ]
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Method to get status history for a transaction
+    public function getStatusHistory($id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $transaksi = Transaksi::find($id);
+        if (!$transaksi) {
+            return response()->json(['message' => 'Transaksi tidak ditemukan'], 404);
+        }
+
+        $statusHistory = TransaksiStatusHistory::with('changedBy:id_karyawan,nama')
+            ->where('id_transaksi', $id)
+            ->orderBy('changed_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Riwayat status ditemukan',
+            'data' => [
+                'transaksi' => $transaksi,
+                'status_history' => $statusHistory
+            ]
+        ]);
     }
 
     public function totalTransaksi()
