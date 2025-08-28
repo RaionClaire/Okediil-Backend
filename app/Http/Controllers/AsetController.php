@@ -137,4 +137,22 @@ class AsetController extends Controller
         ], 200);
     }
 
+
+    public function showPublic($id)
+    {
+        $aset = Aset::find($id);
+
+        if (!$aset) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Asset not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $aset
+        ]);
+    }
+
 }
