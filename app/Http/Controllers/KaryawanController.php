@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 
 class KaryawanController extends Controller
 {
+    private const RULE_STR20 = 'nullable|string|max:20';
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -21,9 +23,9 @@ class KaryawanController extends Controller
             'alamat'                => 'required|string|max:150',
             'no_hp'                 => 'required|string|max:15',
             'tanggal_masuk'         => 'required|date',
-            'bidang'                => 'nullable|string|max:20',
-            'status_karyawan'       => 'nullable|string|max:20',
-            'cabang'                => 'nullable|string|max:20',
+            'bidang'                => self::RULE_STR20,
+            'status_karyawan'       => self::RULE_STR20,
+            'cabang'                => self::RULE_STR20,
             'ukuran_baju'           => 'nullable|string|max:5',
             'tanggal_resign'        => 'nullable|date',
             'role'                  => 'required|in:admin,superadmin,teknisi',
@@ -99,9 +101,9 @@ class KaryawanController extends Controller
             'alamat' => 'sometimes|string|max:150',
             'no_hp' => 'sometimes|string|max:15',
             'tanggal_masuk' => 'sometimes|date',
-            'bidang' => 'nullable|string|max:20',
-            'status_karyawan' => 'nullable|string|max:20',
-            'cabang' => 'nullable|string|max:20',
+            'bidang' => self::RULE_STR20,
+            'status_karyawan' => self::RULE_STR20,
+            'cabang' => self::RULE_STR20,
             'ukuran_baju' => 'nullable|string|max:5',
             'tanggal_resign' => 'nullable|date',
             'role' => 'sometimes|in:admin,superadmin,teknisi',
@@ -216,7 +218,7 @@ class KaryawanController extends Controller
     public function changePassword(Request $request)
     {
         $currentUser = Auth::guard('sanctum')->user();
-        
+
         if (!$currentUser) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
@@ -227,27 +229,25 @@ class KaryawanController extends Controller
             'new_password_confirmation' => 'required|same:new_password'
         ]);
 
-        // Get the user from the User model using id_karyawan
         $user = User::where('id_karyawan', $currentUser->id_karyawan)->first();
-        
+
+        $error = null; $status = 400;
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            $error = ['message' => 'User not found'];
+            $status = 404;
+        } elseif (!Hash::check($request->old_password, $user->password)) {
+            $error = ['message' => 'Password lama tidak sesuai'];
+            $status = 400;
         }
 
-        // Verify current password
-        if (!Hash::check($request->old_password, $user->password)) {
-            return response()->json([
-                'message' => 'Password lama tidak sesuai'
-            ], 400);
+        if ($error) {
+            return response()->json($error, $status);
         }
 
-        // Update password
         $user->password = Hash::make($request->new_password);
         $user->save();
 
-        return response()->json([
-            'message' => 'Password berhasil diubah'
-        ]);
+        return response()->json(['message' => 'Password berhasil diubah']);
     }
 
     private function generateRandomPassword($length = 8)

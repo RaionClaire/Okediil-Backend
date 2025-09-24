@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('cart', function (Blueprint $table) {
             $table->id('id_cart');
+            $table->bigIncrements('id_cart')->change();
             $table->unsignedBigInteger('id_transaksi')->nullable();
             $table->unsignedBigInteger('id_pembelian');
 

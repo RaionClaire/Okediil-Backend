@@ -13,8 +13,8 @@ return new class extends Migration
     {
 Schema::create('transaksi', function (Blueprint $table) {
     $table->id('id_transaksi');
-    $table->string('id_customer', 6);
-    $table->string('id_karyawan', 6);
+    $table->string('id_customer', 20);
+    $table->string('id_karyawan', 20);
     $table->string('servis_layanan', 10);
     $table->string('merk', 20);
     $table->string('tipe', 20);
@@ -32,11 +32,13 @@ Schema::create('transaksi', function (Blueprint $table) {
     $table->integer('garansi')->nullable();
     $table->decimal('total_biaya', 10, 2);
     $table->string('status_transaksi', 20);
+    $table->string('teknisi', 20)->nullable();
     $table->timestamps();
 
     $table->foreign('id_customer')->references('id_customer')->on('customers');
     $table->foreign('id_karyawan')->references('id_karyawan')->on('karyawan');
-    $table->foreign('id_pembelian')->references('id_pembelian')->on('pembelian');
+    $table->foreign('teknisi')->references('id_karyawan')->on('karyawan');
+
 });
 
     }

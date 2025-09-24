@@ -32,102 +32,144 @@ Route::post('/track-by-phone', [TransaksiController::class, 'trackByPhone'])
 
 // ============ PROTECTED ROUTES (Auth Required) ============
 Route::middleware('auth:sanctum')->group(function () {
-    
     // Auth user management
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    
-    // Karyawan routes
-    Route::apiResource('/karyawan', KaryawanController::class);
-    Route::put('/karyawan/{id}/reset-password', [KaryawanController::class, 'resetPassword']);
-    Route::put('/change-password', [KaryawanController::class, 'changePassword']);
-    Route::get('/karyawan-filter', [KaryawanController::class, 'filter']);
-    Route::get('/karyawan-total', [KaryawanController::class, 'totalKaryawan']);
 
-    // Transaksi routes
-    Route::get('/transaksi', [TransaksiController::class, 'index']);
-    Route::post('/transaksi', [TransaksiController::class, 'store']);
-    Route::get('/transaksi/{id}', [TransaksiController::class, 'show']);
-    Route::put('/transaksi/{id}', [TransaksiController::class, 'update']);
-    Route::put('/transaksi/{id}/status', [TransaksiController::class, 'updateStatus']); 
-    Route::put('/transaksi/{id}/status-with-notes', [TransaksiController::class, 'updateStatusWithNotes']); 
-    Route::get('/transaksi/{id}/status-history', [TransaksiController::class, 'getStatusHistory']);
-    Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy']);
-    Route::get('/transaksi-filter', [TransaksiController::class, 'filter']);
-    Route::get('/transaksi-total', [TransaksiController::class, 'totalTransaksi']);
+    // ========= Superadmin only =========
+    Route::middleware('role:superadmin')->group(function () {
+        // Karyawan management
+        Route::apiResource('/karyawan', KaryawanController::class);
+        Route::put('/karyawan/{id}/reset-password', [KaryawanController::class, 'resetPassword']);
+        Route::get('/karyawan-filter', [KaryawanController::class, 'filter']);
+        Route::get('/karyawan-total', [KaryawanController::class, 'totalKaryawan']);
 
-    // Cart routes
-    Route::post('/cart', [CartController::class, 'store']);
-    Route::get('/cart', [CartController::class, 'index']);
-    Route::get('/cart/{id}', [CartController::class, 'show']);
-    Route::put('/cart/{id}', [CartController::class, 'update']);
-    Route::delete('/cart/{id}', [CartController::class, 'destroy']);
-    Route::get('/cart-filter', [CartController::class, 'filter']);
+        // Pembelian
+        Route::prefix('/pembelian')->group(function () {
+            Route::post('', [PembelianController::class, 'store']);
+            Route::get('', [PembelianController::class, 'index']);
+            Route::get('{id}', [PembelianController::class, 'show']);
+            Route::put('{id}', [PembelianController::class, 'update']);
+            Route::delete('{id}', [PembelianController::class, 'destroy']);
+            Route::get('filter', [PembelianController::class, 'filter']);
+            Route::get('total', [PembelianController::class, 'totalPembelian']);
+            Route::get('total-ongkir', [PembelianController::class, 'totalOngkir']);
+        });
+        // Aliases for totals (karyawan-total style)
+        Route::get('/pembelian-available', [PembelianController::class, 'available']);
+        Route::get('/pembelian-total', [PembelianController::class, 'totalPembelian']);
+        Route::get('/pembelian-total-ongkir', [PembelianController::class, 'totalOngkir']);
 
-    // Pembelian routes
-    Route::post('/pembelian', [PembelianController::class, 'store']);
-    Route::get('/pembelian', [PembelianController::class, 'index']);
-    Route::get('/pembelian/{id}', [PembelianController::class, 'show']);
-    Route::put('/pembelian/{id}', [PembelianController::class, 'update']);
-    Route::delete('/pembelian/{id}', [PembelianController::class, 'destroy']);
-    Route::get('/pembelian-filter', [PembelianController::class, 'filter']);
-    Route::get('/pembelian-total', [PembelianController::class, 'totalPembelian']);
-    Route::get('/pembelian-total-ongkir', [PembelianController::class, 'totalOngkir']);
-    Route::get('/pembelian-available', [PembelianController::class, 'available']);
+        // Omal
+        Route::prefix('/omal')->group(function () {
+            Route::post('', [OmalController::class, 'store']);
+            Route::get('', [OmalController::class, 'index']);
+            Route::get('{id}', [OmalController::class, 'show']);
+            Route::put('{id}', [OmalController::class, 'update']);
+            Route::delete('{id}', [OmalController::class, 'destroy']);
+            Route::get('filter', [OmalController::class, 'filter']);
+            Route::get('total-nominal', [OmalController::class, 'totalNominalOmal']);
+        });
+        
+        Route::get('/omal-total-nominal', [OmalController::class, 'totalNominalOmal']);
 
-    // Customer routes
-    Route::post('/customer', [CustomerController::class, 'store']);
-    Route::get('/customer', [CustomerController::class, 'index']);
-    Route::get('/customer/{id}', [CustomerController::class, 'show']);
-    Route::put('/customer/{id}', [CustomerController::class, 'update']);
-    Route::delete('/customer/{id}', [CustomerController::class, 'destroy']);
-    Route::get('/customer-filter', [CustomerController::class, 'filter']);
-    Route::get('/customer-total', [CustomerController::class, 'totalCustomers']);
+        // Aset
+        Route::prefix('/aset')->group(function () {
+            Route::post('', [AsetController::class, 'store']);
+            Route::get('', [AsetController::class, 'index']);
+            Route::get('{id}', [AsetController::class, 'show']);
+            Route::put('{id}', [AsetController::class, 'update']);
+            Route::delete('{id}', [AsetController::class, 'destroy']);
+            Route::get('filter', [AsetController::class, 'filter']);
+            Route::get('total-nominal', [AsetController::class, 'totalNominalAset']);
+        });
+        
+        Route::get('/aset-total-nominal', [AsetController::class, 'totalNominalAset']);
 
-    // Omal routes
-    Route::post('/omal', [OmalController::class, 'store']);
-    Route::get('/omal', [OmalController::class, 'index']);
-    Route::get('/omal/{id}', [OmalController::class, 'show']);
-    Route::put('/omal/{id}', [OmalController::class, 'update']);
-    Route::delete('/omal/{id}', [OmalController::class, 'destroy']);
-    Route::get('/omal-filter', [OmalController::class, 'filter']);
-    Route::get('/omal-total-nominal', [OmalController::class, 'totalNominalOmal']);
+        // Pengeluaran
+        Route::prefix('/pengeluaran')->group(function () {
+            Route::post('', [PengeluaranController::class, 'store']);
+            Route::get('', [PengeluaranController::class, 'index']);
+            Route::get('{id}', [PengeluaranController::class, 'show']);
+            Route::put('{id}', [PengeluaranController::class, 'update']);
+            Route::delete('{id}', [PengeluaranController::class, 'destroy']);
+            Route::get('filter', [PengeluaranController::class, 'filter']);
+            Route::get('total-pengeluaran', [PengeluaranController::class, 'totalPengeluaran']);
+        });
+        
+        Route::get('/pengeluaran-total', [PengeluaranController::class, 'totalPengeluaran']);
 
-    // Aset routes
-    Route::post('/aset', [AsetController::class, 'store']);
-    Route::get('/aset', [AsetController::class, 'index']);
-    Route::get('/aset/{id}', [AsetController::class, 'show']);
-    Route::put('/aset/{id}', [AsetController::class, 'update']);
-    Route::delete('/aset/{id}', [AsetController::class, 'destroy']);
-    Route::get('/aset-filter', [AsetController::class, 'filter']);
-    Route::get('/aset-total-nominal', [AsetController::class, 'totalNominalAset']);
+        // Biaya
+        Route::prefix('/biaya')->group(function () {
+            Route::post('', [BiayaController::class, 'store']);
+            Route::get('', [BiayaController::class, 'index']);
+            Route::get('{id}', [BiayaController::class, 'show']);
+            Route::put('{id}', [BiayaController::class, 'update']);
+            Route::delete('{id}', [BiayaController::class, 'destroy']);
+            Route::get('total-biaya', [BiayaController::class, 'totalBiaya']);
+        });
+        
+        Route::get('/biaya-total', [BiayaController::class, 'totalBiaya']);
+    });
 
-    // Pengeluaran routes
-    Route::post('/pengeluaran', [PengeluaranController::class, 'store']);
-    Route::get('/pengeluaran', [PengeluaranController::class, 'index']);
-    Route::get('/pengeluaran/{id}', [PengeluaranController::class, 'show']);
-    Route::put('/pengeluaran/{id}', [PengeluaranController::class, 'update']);
-    Route::delete('/pengeluaran/{id}', [PengeluaranController::class, 'destroy']);
-    Route::get('/pengeluaran-filter', [PengeluaranController::class, 'filter']);
-    Route::get('/pengeluaran-total', [PengeluaranController::class, 'totalPengeluaran']);
+    // ========= Shared: superadmin, admin, teknisi =========
+    Route::middleware('role:superadmin,admin,teknisi')->group(function () {
+        // Change own password
+        Route::put('/change-password', [KaryawanController::class, 'changePassword']);
 
-    // Biaya routes
-    Route::post('/biaya', [BiayaController::class, 'store']);
-    Route::get('/biaya', [BiayaController::class, 'index']);
-    Route::get('/biaya/{id}', [BiayaController::class, 'show']);
-    Route::put('/biaya/{id}', [BiayaController::class, 'update']);
-    Route::delete('/biaya/{id}', [BiayaController::class, 'destroy']);
-    Route::get('/biaya-total', [BiayaController::class, 'totalBiaya']);
+        // Transaksi
+        Route::prefix('/transaksi')->group(function () {
+            Route::get('', [TransaksiController::class, 'index']);
+            Route::post('', [TransaksiController::class, 'store']);
+            Route::get('{id}', [TransaksiController::class, 'show']);
+            Route::put('{id}', [TransaksiController::class, 'update']);
+            Route::put('{id}/status', [TransaksiController::class, 'updateStatus']);
+            Route::put('{id}/status-with-notes', [TransaksiController::class, 'updateStatusWithNotes']);
+            Route::get('{id}/status-history', [TransaksiController::class, 'getStatusHistory']);
+            Route::delete('{id}', [TransaksiController::class, 'destroy']);
+            Route::get('filter', [TransaksiController::class, 'filter']);
+            Route::get('total-transaksi', [TransaksiController::class, 'totalTransaksi']);
+        });
+        Route::get('/transaksi-total', [TransaksiController::class, 'totalTransaksi']);
 
-    // CRM routes
-    Route::post('/crm', [CrmController::class, 'store']);
-    Route::get('/crm', [CrmController::class, 'index']);
-    Route::get('/crm/{id}', [CrmController::class, 'show']);
-    Route::put('/crm/{id}', [CrmController::class, 'update']);
-    Route::delete('/crm/{id}', [CrmController::class, 'destroy']);
-    Route::get('/crm-search', [CrmController::class, 'search']);
-    Route::get('/crm-total', [CrmController::class, 'total']);
+        // Cart
+        Route::prefix('/cart')->group(function () {
+            Route::post('', [CartController::class, 'store']);
+            Route::get('', [CartController::class, 'index']);
+            Route::get('{id}', [CartController::class, 'show']);
+            Route::put('{id}', [CartController::class, 'update']);
+            Route::delete('{id}', [CartController::class, 'destroy']);
+            Route::get('filter', [CartController::class, 'filter']);
+        });
+    });
+
+    // ========= Admin + Superadmin =========
+    Route::middleware('role:superadmin,admin')->group(function () {
+        // Customer
+        Route::prefix('/customer')->group(function () {
+            Route::post('', [CustomerController::class, 'store']);
+            Route::get('', [CustomerController::class, 'index']);
+            Route::get('{id}', [CustomerController::class, 'show']);
+            Route::put('{id}', [CustomerController::class, 'update']);
+            Route::delete('{id}', [CustomerController::class, 'destroy']);
+            Route::get('filter', [CustomerController::class, 'filter']);
+        });
+        Route::get('/customer-total', [CustomerController::class, 'totalCustomers']);
+
+        // CRM
+        Route::prefix('/crm')->group(function () {
+            Route::post('', [CrmController::class, 'store']);
+            Route::get('', [CrmController::class, 'index']);
+            Route::get('{id}', [CrmController::class, 'show']);
+            Route::put('{id}', [CrmController::class, 'update']);
+            Route::delete('{id}', [CrmController::class, 'destroy']);
+            Route::get('search', [CrmController::class, 'search']);
+            Route::get('total-crm', [CrmController::class, 'total']);
+        });
+        
+        Route::get('/crm-total', [CrmController::class, 'total']);
+    });
 });

@@ -21,19 +21,10 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Find user by id_karyawan
         $user = User::where('id_karyawan', $request->id_karyawan)->first();
 
-        // Check if user exists and password is correct
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Id atau password salah.'], 401);
-        }
-
-        // Check if Sanctum is installed
-        if (!method_exists($user, 'createToken')) {
-            return response()->json([
-                'message' => 'Token creation not available. Please install Laravel Sanctum.',
-            ], 500);
         }
         
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -56,7 +47,6 @@ class AuthController extends Controller
     {
         $user = $request->user();
         
-        // Load karyawan relationship to get full employee data
         $user->load('karyawan');
         
         return response()->json($user);

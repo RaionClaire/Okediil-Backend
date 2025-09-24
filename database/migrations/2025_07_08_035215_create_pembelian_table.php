@@ -24,6 +24,7 @@ Schema::create('pembelian', function (Blueprint $table) {
     $table->string('nama_mitra', 50);
     $table->bigInteger('harga_beli');
     $table->bigInteger('ongkir');
+    $table->boolean('status')->default(true);
     $table->string('metode_pembayaran', 20);
     $table->timestamps();
 });
