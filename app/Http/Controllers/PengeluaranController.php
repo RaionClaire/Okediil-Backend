@@ -16,6 +16,7 @@ class PengeluaranController extends Controller
             'kuantitas' => 'required|integer|min:1',
             'tanggal' => 'required|date',
             'lokasi' => 'nullable|string|max:100',
+            'catatan' => 'nullable|string|max:1000',
         ]);
 
         $pengeluaran = Pengeluaran::create($validated);
@@ -67,6 +68,7 @@ class PengeluaranController extends Controller
             'kuantitas' => 'integer|min:1',
             'tanggal' => 'date',
             'lokasi' => 'string|max:100',
+            'catatan' => 'string|max:1000',
         ]);
 
         $pengeluaran->update($validated);

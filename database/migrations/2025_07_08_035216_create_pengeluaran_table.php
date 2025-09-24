@@ -19,6 +19,7 @@ Schema::create('pengeluaran', function (Blueprint $table) {
     $table->integer('kuantitas');
     $table->date('tanggal');
     $table->string('lokasi', 100)->nullable();
+    $table->string('catatan', 1000)->nullable();
     $table->timestamps();
 });
 

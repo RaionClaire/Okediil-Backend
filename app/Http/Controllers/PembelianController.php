@@ -29,10 +29,6 @@ class PembelianController extends Controller
         $validated['jumlah_produk']=1;
 
         for ($i = 0; $i < $jumlah; $i++) {
-            if ($i == 1) {
-                $validated['ongkir'] = 0;
-            }
-
             $pembelian = Pembelian::create($validated);
         }
 

@@ -17,6 +17,7 @@ class Pengeluaran extends Model
         'harga',
         'kuantitas',
         'tanggal',
-        'lokasi'
+        'lokasi',
+        'catatan',
     ];
 }

@@ -76,6 +76,12 @@ class AsetController extends Controller
             'jumlah' => 'sometimes|required|integer|min:1',
             'harga_satuan' => 'sometimes|required|numeric|min:0',
             'keterangan' => 'nullable|string|max:255',
+            'lokasi' => 'nullable|string|max:100',
+            'kondisi' => 'nullable|string|max:20',
+            'tanggal_pembelian' => 'nullable|date',
+            'harga' => 'sometimes|required|numeric|min:0',
+            'garansi' => 'nullable|date',
+            'catatan' => 'nullable|string|max:1000',
         ]);
 
         $aset->update($validated);

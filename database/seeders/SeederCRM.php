@@ -22,7 +22,7 @@ class SeederCRM extends Seeder
                 'jenis_kelamin' => $faker->randomElement(['Laki-Laki', 'Perempuan']),
                 'pekerjaan' => $faker->randomElement(['Pelajar', 'Mahasiswa', 'Umum', 'Pekerja']),
                 'sumber_chat' => $faker->randomElement(['Instagram', 'Whatsapp']),
-                'jenis_produk' => $faker->randomElement(['Handphone', 'Laptop']),
+                'jenis_produk' => $faker->randomElement(['HP', 'Laptop']),
                 'kondisi' => $faker->randomElement(['Mati total', 'Nyala tapi tidak berfungsi', 'Layar pecah', 'Baterai cepat habis', 'Masalah pada aplikasi', 'Masalah pada jaringan']),
                 'merk' => $faker->randomElement(['Apple', 'Samsung', 'Xiaomi', 'Oppo', 'Vivo', 'Realme', 'Asus', 'Lenovo', 'Huawei', 'Lainnya']),
                 'tipe_produk' => $faker->word(),

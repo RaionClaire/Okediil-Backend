@@ -20,7 +20,7 @@ class SeederPembelian extends Seeder
             Pembelian::create([
                 'nama_produk' => $faker->word(),
                 'kategori_produk' => $faker->randomElement(['Periferal', 'LCD', 'Baterai', 'Charger', 'Aksesoris']),
-                'jenis_produk' => $faker->randomElement(['Handphone', 'Laptop']),
+                'jenis_produk' => $faker->randomElement(['HP', 'Laptop']),
                 'merk' => $faker->randomElement(['Apple', 'Samsung', 'Xiaomi', 'Oppo', 'Vivo', 'Asus', 'Acer', 'Lenovo', 'HP', 'Dell']),
                 'kualitas_produk' => $faker->randomElement(['Original', 'Distributor', 'KW']),
                 'harga_beli' => $faker->numberBetween(100000, 5000000),

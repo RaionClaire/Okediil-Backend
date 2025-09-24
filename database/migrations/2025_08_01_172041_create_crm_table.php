@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('crm', function (Blueprint $table) {
             $table->id('id_crm');
             $table->string('nama');
-            $table->string('tanggal');
+            $table->date('tanggal');
             $table->string('alamat');
             $table->string('no_hp');
             $table->string('jenis_kelamin');
