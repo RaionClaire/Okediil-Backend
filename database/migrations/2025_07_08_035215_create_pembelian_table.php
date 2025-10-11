@@ -15,7 +15,7 @@ Schema::create('pembelian', function (Blueprint $table) {
     $table->id('id_pembelian');
     $table->string('nama_produk', 50);
     $table->string('kategori_produk', 20);
-    $table->string('merk', 20);
+    $table->string('merk', 30);
     $table->string('jenis_produk', 30);
     $table->date('tanggal');
     $table->integer('jumlah_produk');

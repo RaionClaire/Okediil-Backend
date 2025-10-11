@@ -14,13 +14,13 @@ return new class extends Migration
 Schema::create('customers', function (Blueprint $table) {
     $table->string('id_customer', 20)->primary();
     $table->string('nama', 50);
-    $table->string('email', 50);
+    $table->string('email', 50)->nullable();
     $table->string('no_hp', 20);
     $table->string('alamat', 20);
     $table->char('jenis_kelamin', 20);
     $table->string('status_pekerjaan', 10);
     $table->string('sumber', 15);
-    $table->string('media_sosial', 20)->nullable();
+    $table->string('media_sosial', 30)->nullable();
     $table->integer('berapa_kali_servis')->default(0);
     $table->timestamps();
 });

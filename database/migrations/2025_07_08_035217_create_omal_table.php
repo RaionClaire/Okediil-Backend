@@ -14,10 +14,10 @@ return new class extends Migration
 Schema::create('omal', function (Blueprint $table) {
     $table->id('id_omal');
     $table->date('tanggal');
-    $table->string('status_omal', 20);
+    $table->string('status_omal', 30);
     $table->string('keterangan', 1000);
     $table->timestamps();
-    $table->string('harga', 6);
+    $table->bigInteger('harga');
 });
     }
 

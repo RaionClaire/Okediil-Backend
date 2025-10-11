@@ -14,7 +14,7 @@ return new class extends Migration
 Schema::create('aset', function (Blueprint $table) {
     $table->id('id_aset');
     $table->string('nama_aset', 50);
-    $table->binary('barcode')->nullable(); // blob → binary
+    $table->binary('barcode')->nullable(); 
     $table->string('jenis_aset', 20);
     $table->string('kondisi', 20);
     $table->date('tanggal_pembelian');

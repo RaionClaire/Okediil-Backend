@@ -180,11 +180,21 @@ public function store(Request $request)
         ]);
 
         try {
+            $oldStatus = $transaksi->status_transaksi;
+            
+            // Update status - the model event will automatically log this to history
             $transaksi->update($validated);
 
             return response()->json([
-                'message' => 'Status transaksi berhasil diperbarui',
-                'data' => $transaksi
+                'success' => true,
+                'message' => 'Status transaksi berhasil diperbarui dari "' . $oldStatus . '" ke "' . $validated['status_transaksi'] . '"',
+                'data' => $transaksi,
+                'status_change' => [
+                    'from' => $oldStatus,
+                    'to' => $validated['status_transaksi'],
+                    'changed_by' => $user->id_karyawan,
+                    'changed_at' => now()
+                ]
             ]);
 
         } catch (\Exception $e) {

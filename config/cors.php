@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://api.okediil.com', 'https://app.okediil.com', 'http://127.0.0.1'],
+    'allowed_origins' => ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://api.service-okediil.com', 'https://app.service-okediil.com', 'https://app.raionclaire.my.id'],
 
     'allowed_origins_patterns' => [],
 

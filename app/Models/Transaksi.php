@@ -19,23 +19,19 @@ protected $fillable = [
     'garansi', 'total_biaya', 'status_transaksi', 'teknisi'
 ];
 
-// Model events for automatic status tracking
 protected static function booted()
 {
-    // Track status changes when updating
     static::updating(function ($transaksi) {
         if ($transaksi->isDirty('status_transaksi')) {
             $originalStatus = $transaksi->getOriginal('status_transaksi');
             $newStatus = $transaksi->status_transaksi;
             
-            // Get current user (karyawan) making the change
             $changedBy = null;
             if (Auth::check()) {
                 $user = Auth::user();
                 $changedBy = $user->id_karyawan ?? null;
             }
             
-            // Record the status change
             TransaksiStatusHistory::create([
                 'id_transaksi' => $transaksi->id_transaksi,
                 'status_lama' => $originalStatus,
@@ -47,7 +43,6 @@ protected static function booted()
         }
     });
 
-    // Track initial status when creating new transaction
     static::created(function ($transaksi) {
         $changedBy = null;
         if (Auth::check()) {
@@ -96,10 +91,10 @@ public function pembelianItems() {
     return $this->hasManyThrough(
         Pembelian::class, 
         Cart::class, 
-        'id_transaksi', // Foreign key on cart table
-        'id_pembelian', // Foreign key on pembelian table
-        'id_transaksi', // Local key on transaksi table
-        'id_pembelian'  // Local key on cart table
+        'id_transaksi', 
+        'id_pembelian', 
+        'id_transaksi', 
+        'id_pembelian'  
     );
 }
 
