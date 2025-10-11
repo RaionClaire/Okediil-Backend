@@ -37,7 +37,7 @@ class BiayaController extends Controller
 
     public function index()
     {
-        $biayas = Biaya::all();
+        $biayas = Biaya::orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'message' => 'Daftar biaya',

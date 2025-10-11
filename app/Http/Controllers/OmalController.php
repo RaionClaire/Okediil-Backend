@@ -23,7 +23,7 @@ class OmalController extends Controller
 
     public function index()
     {
-        $omals = Omal::all();
+        $omals = Omal::orderBy('created_at', 'desc')->get();
         return response()->json($omals);
     }
 

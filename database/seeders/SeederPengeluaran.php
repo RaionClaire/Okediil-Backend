@@ -24,7 +24,7 @@ class SeederPengeluaran extends Seeder
                 'kuantitas' => $faker->numberBetween(1, 10),
                 'tanggal' => $faker->date(),
                 'lokasi' => $faker->numberBetween(1, 5),
-                'catatan' => $faker->word(),
+                'catatan' => $faker->sentence(),
             ]);
         });
     }

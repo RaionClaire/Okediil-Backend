@@ -37,7 +37,7 @@ class AsetController extends Controller
 
     public function index()
     {
-        $asets = Aset::all();
+        $asets = Aset::orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'message' => 'Daftar aset',

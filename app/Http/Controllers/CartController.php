@@ -30,7 +30,7 @@ class CartController extends Controller
 
     public function index()
     {
-        return response()->json(['data' => Cart::all()]);
+        return response()->json(['data' => Cart::orderBy('created_at', 'desc')->get()]);
     }
 
     public function show($id)

@@ -71,7 +71,7 @@ class KaryawanController extends Controller
 
     public function index()
     {
-        $karyawans = Karyawan::all();
+        $karyawans = Karyawan::orderBy('created_at', 'desc')->get();
         return response()->json($karyawans, 200);
     }
 

@@ -33,7 +33,7 @@ class CrmController extends Controller
 
     public function index()
     {
-        $crmEntries = Crm::all();
+        $crmEntries = Crm::orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'message' => 'List of CRM entries',

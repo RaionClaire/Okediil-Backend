@@ -41,7 +41,7 @@ class PembelianController extends Controller
 
     public function index()
     {
-        $pembelians = Pembelian::all();
+        $pembelians = Pembelian::orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'message' => 'Daftar pembelian',

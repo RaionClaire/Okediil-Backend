@@ -29,7 +29,7 @@ class PengeluaranController extends Controller
 
     public function index()
     {
-        $pengeluaran = Pengeluaran::all();
+        $pengeluaran = Pengeluaran::orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'message' => 'Daftar pengeluaran',

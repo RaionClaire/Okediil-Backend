@@ -140,7 +140,8 @@ public function store(Request $request)
             $query->where('teknisi', $user->id_karyawan);
         }
         
-        $transaksi = $query->get();
+        // Order by newest first
+        $transaksi = $query->orderBy('created_at', 'desc')->get();
         return response()->json($transaksi);
     }
 
