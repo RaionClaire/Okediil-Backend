@@ -13,7 +13,7 @@ class AsetController extends Controller
         $validated = $request->validate([
             'nama_aset' => 'required|string|max:50',
             'jenis_aset' => 'required|string|max:30',
-            'kondisi' => 'nullable|string|max:20',
+            'kondisi' => 'nullable|string|max:30',
             'tanggal_pembelian' => 'nullable|date',
             'harga' => 'required|numeric|min:0',
             'lokasi' => 'nullable|string|max:100',

@@ -11,12 +11,12 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:50',
             'email' => 'nullable|email|max:100',
-            'no_hp' => 'required|string|max:17',
+            'no_hp' => 'required|string|max:20',
             'alamat' => 'required|string|max:150',
             'jenis_kelamin' => 'required',
             'status_pekerjaan' => 'required|string|max:10',
             'sumber' => 'required|string|max:15',
-            'media_sosial' => 'nullable|string|max:20',
+            'media_sosial' => 'nullable|string|max:30',
             'berapa_kali_servis' => 'nullable|integer|min:0',
         ]);
 

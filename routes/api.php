@@ -42,16 +42,16 @@ Route::middleware('auth:sanctum')->group(function () {
     // ========= Superadmin only =========
     Route::middleware('role:superadmin')->group(function () {
         // Karyawan management
-        Route::apiResource('/karyawan', KaryawanController::class);
+        Route::post('/karyawan', [KaryawanController::class, 'store']);
+        Route::get('/karyawan/{id}', [KaryawanController::class, 'show']);
+        Route::put('/karyawan/{id}', [KaryawanController::class, 'update']);
+        Route::delete('/karyawan/{id}', [KaryawanController::class, 'destroy']);
         Route::put('/karyawan/{id}/reset-password', [KaryawanController::class, 'resetPassword']);
-        Route::get('/karyawan-filter', [KaryawanController::class, 'filter']);
         Route::get('/karyawan-total', [KaryawanController::class, 'totalKaryawan']);
 
         // Pembelian
         Route::prefix('/pembelian')->group(function () {
             Route::post('', [PembelianController::class, 'store']);
-            Route::get('', [PembelianController::class, 'index']);
-            Route::get('{id}', [PembelianController::class, 'show']);
             Route::put('{id}', [PembelianController::class, 'update']);
             Route::delete('{id}', [PembelianController::class, 'destroy']);
             Route::get('filter', [PembelianController::class, 'filter']);
@@ -59,7 +59,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('total-ongkir', [PembelianController::class, 'totalOngkir']);
         });
         // Aliases for totals (karyawan-total style)
-        Route::get('/pembelian-available', [PembelianController::class, 'available']);
         Route::get('/pembelian-total', [PembelianController::class, 'totalPembelian']);
         Route::get('/pembelian-total-ongkir', [PembelianController::class, 'totalOngkir']);
 
@@ -109,7 +108,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('{id}', [BiayaController::class, 'show']);
             Route::put('{id}', [BiayaController::class, 'update']);
             Route::delete('{id}', [BiayaController::class, 'destroy']);
-            Route::get('total-biaya', [BiayaController::class, 'totalBiaya']);
         });
         
         Route::get('/biaya-total', [BiayaController::class, 'totalBiaya']);
@@ -158,6 +156,15 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('filter', [CustomerController::class, 'filter']);
         });
         Route::get('/customer-total', [CustomerController::class, 'totalCustomers']);
+
+        // GET karyawan dan pembelian khusus untuk transaksi
+        Route::get('/karyawan', [KaryawanController::class, 'index']);
+        Route::get('/karyawan/{id}', [KaryawanController::class, 'show']);
+        Route::get('/pembelian', [PembelianController::class, 'index']);
+        Route::get('/pembelian/{id}', [PembelianController::class, 'show']);
+        Route::get('/pembelian-available', [PembelianController::class, 'available']);
+
+
 
         // CRM
         Route::prefix('/crm')->group(function () {

@@ -21,7 +21,7 @@ class KaryawanController extends Controller
             'jenis_kelamin'         => 'required',
             'tempat_tanggal_lahir'  => 'required|string|max:50',
             'alamat'                => 'required|string|max:150',
-            'no_hp'                 => 'required|string|max:15',
+            'no_hp'                 => 'required|string|max:20',
             'tanggal_masuk'         => 'required|date',
             'bidang'                => self::RULE_STR20,
             'status_karyawan'       => self::RULE_STR20,

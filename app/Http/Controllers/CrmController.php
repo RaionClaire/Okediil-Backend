@@ -12,15 +12,15 @@ class CrmController extends Controller
             'nama' => 'required|string|max:50',
             'tanggal' => 'required|date',
             'alamat' => 'required|string|max:150',
-            'no_hp' => 'required|string|max:17',
+            'no_hp' => 'required|string|max:20',
             'jenis_kelamin' => 'required',
             'pekerjaan' => 'required|string|max:50',
             'sumber_chat' => 'required|string|max:20',
             'jenis_produk' => 'nullable|string|max:30',
-            'kondisi' => 'nullable|string|max:20',
+            'kondisi' => 'nullable|string|max:200',
             'merk' => 'nullable|string|max:30',
             'tipe_produk' => 'nullable|string|max:30',
-            'status' => 'required|string|max:20',
+            'status' => 'required|string|max:30',
         ]);
 
         $crm = Crm::create($validated);

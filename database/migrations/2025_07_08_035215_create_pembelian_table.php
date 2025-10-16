@@ -20,7 +20,7 @@ Schema::create('pembelian', function (Blueprint $table) {
     $table->date('tanggal');
     $table->integer('jumlah_produk');
     $table->string('kualitas_produk', 20);
-    $table->date('garansi_produk');
+    $table->date('garansi_produk')->nullable();
     $table->string('nama_mitra', 50);
     $table->bigInteger('harga_beli');
     $table->bigInteger('ongkir');

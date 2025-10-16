@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_transaksi');
             $table->string('status_lama', 20)->nullable(); 
             $table->string('status_baru', 20); 
-            $table->string('changed_by', 6)->nullable(); 
+            $table->string('changed_by', 30)->nullable(); 
             $table->text('catatan_perubahan')->nullable();
             $table->timestamp('changed_at');
             $table->timestamps();

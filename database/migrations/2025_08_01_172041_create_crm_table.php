@@ -13,18 +13,18 @@ return new class extends Migration
     {
         Schema::create('crm', function (Blueprint $table) {
             $table->id('id_crm');
-            $table->string('nama');
+            $table->string('nama', 50);
             $table->date('tanggal');
-            $table->string('alamat');
-            $table->string('no_hp');
+            $table->string('alamat', 150);
+            $table->string('no_hp', 20);
             $table->string('jenis_kelamin');
-            $table->string('pekerjaan');
-            $table->string('sumber_chat');
-            $table->string('jenis_produk');
-            $table->string('kondisi');
-            $table->string('merk');
-            $table->string('tipe_produk')->nullable();
-            $table->string('status');
+            $table->string('pekerjaan', 50);
+            $table->string('sumber_chat', 20);
+            $table->string('jenis_produk', 30);
+            $table->string('kondisi', 200);
+            $table->string('merk', 30);
+            $table->string('tipe_produk', 30)->nullable();
+            $table->string('status', 30);
             $table->timestamps();
         });
     }
