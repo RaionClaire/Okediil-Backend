@@ -106,7 +106,7 @@ class KaryawanController extends Controller
             'cabang' => self::RULE_STR20,
             'ukuran_baju' => 'nullable|string|max:5',
             'tanggal_resign' => 'nullable|date',
-            'role' => 'sometimes|in:admin,superadmin,teknisi',
+            'role' => 'sometimes|in:admin,superadmin,teknisi,user',
         ]);
 
         DB::beginTransaction();

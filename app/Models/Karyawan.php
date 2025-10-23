@@ -57,6 +57,11 @@ class Karyawan extends Authenticatable
         return strtolower($this->role) === 'teknisi';
     }
 
+    public function isUser()
+    {
+        return strtolower($this->role) === 'user';
+    }
+
     // Check if active employee
     public function isActive()
     {
