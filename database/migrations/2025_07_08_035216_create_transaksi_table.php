@@ -22,11 +22,11 @@ Schema::create('transaksi', function (Blueprint $table) {
     $table->date('tanggal_masuk');
     $table->date('tanggal_keluar')->nullable();
     $table->string('tambahan', 100)->nullable();
-    $table->string('catatan', 1000)->nullable();
-    $table->string('keluhan', 1000)->nullable();
+    $table->string('catatan', 300)->nullable();
+    $table->string('keluhan', 200)->nullable();
     $table->string('kelengkapan', 100)->nullable();
     $table->string('pin', 30)->nullable();
-    $table->string('kerusakan', 1000)->nullable();
+    $table->string('kerusakan', 300)->nullable();
     $table->unsignedBigInteger('id_pembelian')->nullable();
     $table->integer('kuantitas');
     $table->integer('garansi')->nullable();
